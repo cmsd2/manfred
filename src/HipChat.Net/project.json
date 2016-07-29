@@ -1,0 +1,33 @@
+{
+  "version": "1.0.0",
+  "buildOptions": {
+    "emitEntryPoint": false
+  },
+  "dependencies": {
+    "System.Net.Requests": "4.0.10",
+    "Newtonsoft.Json": "8.0.2",
+    "System.Net.Http": "4.1.0",
+    "System.Runtime.Serialization.Primitives": "4.1.1"
+  },
+  "frameworks": {
+    "net46": {
+      "dependencies": {
+          "System.Runtime": "4.0.20"
+      }
+    },
+    "netstandard1.5": {
+      "imports": "dnxcore50",
+      "buildOptions": {
+        "define": [
+          "LIBLOG_PORTABLE",
+          "NETSTANDARD1_5"
+        ]
+      },
+      "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "Microsoft.CSharp": "4.0.1",
+        "System.Dynamic.Runtime": "4.0.11"
+      }
+    }
+  }
+}

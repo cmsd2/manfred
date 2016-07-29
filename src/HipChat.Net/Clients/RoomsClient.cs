@@ -61,6 +61,7 @@ namespace HipChat.Net.Clients
       return response;
     }
 
+#pragma warning disable CS1998
     /// <summary>
     /// Update the room
     /// </summary>
@@ -75,6 +76,7 @@ namespace HipChat.Net.Clients
     {
       throw new NotImplementedException();
     }
+#pragma warning restore CS1998
 
     /// <summary>
     /// Deletes the room
