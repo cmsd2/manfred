@@ -16,7 +16,7 @@ namespace Manfred.Daos
     public class DynamoMemberships
     {
         [DynamoDBHashKey]
-        public int Jid { get; set; }
+        public string Jid { get; set; }
         public List<string> Rooms {get; set;}
     }
 
