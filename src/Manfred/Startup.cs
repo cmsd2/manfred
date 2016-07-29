@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Manfred.Daos;
+using HipChat.Net;
+using HipChat.Net.Clients;
+using HipChat.Net.Http;
 
 namespace Manfred
 {
@@ -41,6 +45,14 @@ namespace Manfred
             services.AddOptions();
 
             services.Configure<Settings>(Configuration.GetSection("Manfred"));
+            
+            services.AddSingleton<IMembershipRepository>(new InMemoryMembershipRepository());
+            
+            var apiKey = Configuration.GetSection("Manfred").GetValue<string>("ApiKey");
+            var hipChat = new HipChatClient(new ApiConnection(new Credentials(apiKey)));
+
+            services.AddSingleton<HipChatClient>(hipChat);
+            services.AddSingleton<IRoomsClient>(hipChat.Rooms);
         }
 
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)

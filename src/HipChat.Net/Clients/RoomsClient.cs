@@ -152,6 +152,51 @@ namespace HipChat.Net.Clients
       };
       return response;
     }
+    
+    /// <summary>
+    /// Get all room participants
+    /// </summary>
+    /// <param name="room">The room.</param>
+    /// <returns>Task&lt;IResponse&lt;RoomItems&lt;Mention&gt;&gt;&gt;.</returns>
+    public async Task<IResponse<RoomItems<Mention>>> GetParticipantsAsync(string room)
+    {
+      Validate.Length(room, 100, "Room Id/Name");
+
+      var rawResponse = await ApiConnection.Client.GetStringAsync(string.Format("room/{0}/participant", room));
+      var context = JsonConvert.DeserializeObject<RoomItems<Mention>>(rawResponse);
+      var response = new Response<RoomItems<Mention>>(context)
+      {
+        Code = HttpStatusCode.OK,
+        Body = rawResponse
+      };
+      return response;
+    }
+    
+    /// <summary>
+    /// Send room message.
+    /// </summary>
+    /// <param name="room">The room.</param>
+    /// <param name="message">The message.</param>
+    /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
+    public async Task<IResponse<bool>> SendMessageAsync(string room, string message)
+    {
+      Validate.NotNull(message, "SendMessage argument");
+      Validate.Length(message, 1000, "Notification Message");
+
+      var sendMessage = new SendMessage() { Message = message };
+      var json = JsonConvert.SerializeObject(sendMessage, Formatting.None, _jsonSettings);
+      var payload = new StringContent(json, Encoding.UTF8, "application/json");
+
+      var result = await ApiConnection.Client.PostAsync(string.Format("room/{0}/message", room), payload);
+      var content = await result.Content.ReadAsStringAsync();
+      var response = new Response<bool>(true)
+      {
+        Code = result.StatusCode,
+        Body = content,
+        ContentType = result.Content.Headers.ContentType.MediaType
+      };
+      return response;
+    }
 
     /// <summary>
     /// Send room notification.

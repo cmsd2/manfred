@@ -57,6 +57,24 @@ namespace HipChat.Net.Clients
     Task<IResponse<RoomItems<Mention>>> GetMembersAsync(string room);
 
     /// <summary>
+    /// Gets the participants asynchronous.
+    /// </summary>
+    /// <param name="room">The room.</param>
+    /// <returns>Task&lt;IResponse&lt;RoomItems&lt;Mention&gt;&gt;&gt;.</returns>
+    Task<IResponse<RoomItems<Mention>>> GetParticipantsAsync(string room);
+
+    /// <summary>
+    /// Sends the notification asynchronous.
+    /// </summary>
+    /// <param name="room">The room.</param>
+    /// <param name="message">The message.</param>
+    /// <param name="notifyRoom">if set to <c>true</c> [notify room].</param>
+    /// <param name="format">The format.</param>
+    /// <param name="color">The color.</param>
+    /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
+    Task<IResponse<bool>> SendMessageAsync(string room, string message);
+
+    /// <summary>
     /// Sends the notification asynchronous.
     /// </summary>
     /// <param name="room">The room.</param>
