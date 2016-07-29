@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Core;
 using Microsoft.AspNetCore.Mvc;
@@ -17,32 +19,32 @@ namespace Manfred.Controllers
         }
         
         [HttpGet]
-        public List<Room> Index()
+        public async Task<List<string>> Index()
         {
-            return Memberships.GetMemberships();
+            return await Memberships.GetMembershipsAsync();
         }
            
         [HttpPut]
-        public IActionResult Create([FromBody] Room m)
+        public async Task<IActionResult> Create([FromBody] Room m)
         {
-            if(m.RoomId == null || m.RoomName == null)
+            if(m.RoomId == null)
             {
                 return BadRequest();
             }
             
-            Memberships.AddMembership(m);
+            await Memberships.AddMembershipAsync(m.RoomId);
             
             return Ok(m);
         }
         
         [HttpDelete("{roomId}")]
-        public IActionResult Delete(string roomId)
+        public async Task<IActionResult> Delete(string roomId)
         {
-            var m = Memberships.FindMembershipByRoomId(roomId);
+            var m = await Memberships.IsMemberAsync(roomId);
             
-            if(m != null)
+            if(m)
             {
-                Memberships.RemoveMembership(m);
+                await Memberships.RemoveMembershipAsync(roomId);
                 
                 return Ok();
             }
@@ -53,13 +55,13 @@ namespace Manfred.Controllers
         }
         
         [HttpGet("{roomId}")]
-        public IActionResult Get(string roomId)
+        public async Task<IActionResult> Get(string roomId)
         {
-            var m = Memberships.FindMembershipByRoomId(roomId);
+            var m = await Memberships.IsMemberAsync(roomId);
             
-            if(m != null)
+            if(m)
             {
-                return Ok(m);
+                return Ok();
             }
             else
             {

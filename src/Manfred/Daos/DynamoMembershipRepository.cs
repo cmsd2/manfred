@@ -1,0 +1,179 @@
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Amazon.Runtime;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
+using Amazon.DynamoDBv2.DataModel;
+using Manfred.Models;
+
+namespace Manfred.Daos
+{
+
+    [DynamoDBTable("Memberships")]
+    public class DynamoMemberships
+    {
+        [DynamoDBHashKey]
+        public int Jid { get; set; }
+        public List<string> Rooms {get; set;}
+    }
+
+    public class DynamoMembershipRepository : IMembershipRepository
+    {
+        private readonly ILogger logger;
+
+        public AmazonDynamoDBClient Client { get; set; }
+        public DynamoDBContext Context { get; set; }
+        public Settings Settings {get; set;}
+        public readonly string TableName = "Memberships";
+
+        public DynamoMembershipRepository(ILoggerFactory loggerFactory, IOptions<Settings> settings)
+        {
+            logger = loggerFactory.CreateLogger<DynamoMembershipRepository>();
+            Settings = settings.Value;
+
+            AWSCredentials credentials = new BasicAWSCredentials(settings.Value.Aws.AccessKeyId, settings.Value.Aws.SecretAccessKey);
+            Client = new AmazonDynamoDBClient(credentials);
+            Context = new DynamoDBContext(Client);
+
+            CreateTable();
+            WaitForTable();
+        }
+
+        public void CreateTable()
+        {
+            var request = new CreateTableRequest
+            {
+                TableName = this.TableName,
+                AttributeDefinitions = new List<AttributeDefinition>
+                {
+                    new AttributeDefinition
+                    {
+                        AttributeName = "Jid",
+                        // "S" = string, "N" = number, and so on.
+                        AttributeType = "S"
+                    },
+                    new AttributeDefinition
+                    {
+                        AttributeName = "Rooms",
+                        AttributeType = "SS"
+                    }
+                },
+                KeySchema = new List<KeySchemaElement>
+                {
+                    new KeySchemaElement
+                    {
+                        AttributeName = "Jid",
+                        // "HASH" = hash key, "RANGE" = range key.
+                        KeyType = "HASH"
+                    }
+                },
+                ProvisionedThroughput = new ProvisionedThroughput
+                {
+                    ReadCapacityUnits = 1,
+                    WriteCapacityUnits = 1
+                },
+            };
+
+            var response = Client.CreateTableAsync(request).Result;
+
+            logger.LogInformation("Table created with request ID: " +
+              response.ResponseMetadata.RequestId);
+        }
+
+        public void WaitForTable()
+        {
+            var status = "";
+
+            do
+            {
+                // Wait 5 seconds before checking (again).
+                System.Threading.Thread.Sleep(TimeSpan.FromSeconds(5));
+        
+                try
+                {
+                    var response = Client.DescribeTableAsync(new DescribeTableRequest
+                    {
+                        TableName = this.TableName
+                    }).Result;
+
+                    logger.LogInformation("Table = {0}, Status = {1}",
+                        response.Table.TableName,
+                        response.Table.TableStatus);
+
+                    status = response.Table.TableStatus;
+                }
+                catch (ResourceNotFoundException e)
+                {
+                    logger.LogInformation("DescribeTable = {0}, Error = {1}", this.TableName, e.Message);
+                    // DescribeTable is eventually consistent. So you might
+                    //   get resource not found. 
+                }
+
+            } while (status != TableStatus.ACTIVE);
+        }
+
+        public async Task<List<string>> GetMembershipsAsync()
+        {
+            var memberships = await Context.LoadAsync<DynamoMemberships>(Settings.Jid);
+
+            return memberships.Rooms;
+        }
+
+        public async Task AddMembershipAsync(string roomId)
+        {
+            var request = new UpdateItemRequest
+            {
+                TableName = this.TableName,
+                Key = new Dictionary<string,AttributeValue>() { { "Jid", new AttributeValue { S = Settings.Jid } } },
+                ExpressionAttributeNames = new Dictionary<string,string>()
+                {
+                    {"#R", "Rooms"}
+                },
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue>()
+                {
+                    {":room", new AttributeValue { SS = {roomId}}}
+                },
+
+                UpdateExpression = "ADD #R :room"
+            };
+
+            await Client.UpdateItemAsync(request);
+        }
+
+        public async Task RemoveMembershipAsync(string roomId)
+        {
+            var request = new UpdateItemRequest
+            {
+                TableName = this.TableName,
+                Key = new Dictionary<string,AttributeValue>() { { "Jid", new AttributeValue { S = Settings.Jid } } },
+                ExpressionAttributeNames = new Dictionary<string,string>()
+                {
+                    {"#R", "Rooms"}
+                },
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue>()
+                {
+                    {":room", new AttributeValue { SS = {roomId}}}
+                },
+
+                // This expression does the following:
+                // 1) Adds two new authors to the list
+                // 2) Reduces the price
+                // 3) Adds a new attribute to the item
+                // 4) Removes the ISBN attribute from the item
+                UpdateExpression = "DELETE #R :room"
+            };
+
+            await Client.UpdateItemAsync(request);
+        }
+
+        public async Task<bool> IsMemberAsync(string roomId)
+        {
+            var memberships = await GetMembershipsAsync();
+
+            return memberships.Contains(roomId);
+        }
+    }
+}

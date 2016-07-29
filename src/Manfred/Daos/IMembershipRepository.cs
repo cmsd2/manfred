@@ -1,16 +1,17 @@
 using Manfred.Models;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace Manfred.Daos
 {
     public interface IMembershipRepository
     {
-        List<Room> GetMemberships();
+        Task<List<string>> GetMembershipsAsync();
         
-        void AddMembership(Room m);
+        Task AddMembershipAsync(string roomId);
         
-        void RemoveMembership(Room m);
-        
-        Room FindMembershipByRoomId(string roomId);
+        Task RemoveMembershipAsync(string roomId);
+
+        Task<bool> IsMemberAsync(string roomId);
     }
 }

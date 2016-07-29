@@ -19,11 +19,16 @@
     "Microsoft.AspNetCore.Mvc": "1.0.0",
     "Microsoft.Extensions.Logging.Console": "1.0.0",
     "Microsoft.Extensions.Logging": "1.0.0",
-    "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0"
+    "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
+    "AWSSDK.DynamoDBv2": "3.1.5.2"
   },
   "frameworks": {
     "netcoreapp1.0": {
-      "imports": "dnxcore50"
+      "imports": [
+        "dnxcore50",
+        "portable-net45+win8+wp8+wpa81",
+        "portable-net45+win8+wp8"
+      ]
     }
   }
 }

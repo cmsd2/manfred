@@ -1,43 +1,42 @@
 using Manfred.Models;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace Manfred.Daos
 {
     public class InMemoryMembershipRepository : IMembershipRepository
     {
-        private List<Room> Memberships {get; set;}
+        private List<string> Memberships {get; set;}
         
         public InMemoryMembershipRepository()
         {
-            Memberships = new List<Room>();
+            Memberships = new List<string>();
         }
         
-        public List<Room> GetMemberships()
+        public Task<List<string>> GetMembershipsAsync()
         {
-            return Memberships;
+            return Task.FromResult(Memberships);
         }
         
-        public void AddMembership(Room m)
+        public Task AddMembershipAsync(string roomId)
         {
-            Memberships.Add(m);
+            Memberships.Add(roomId);
+
+            return Task.CompletedTask;
         }
         
-        public void RemoveMembership(Room m)
+        public Task RemoveMembershipAsync(string roomId)
         {
-            Memberships.Remove(m);
+            Memberships.Remove(roomId);
+
+            return Task.CompletedTask;
         }
         
-        public Room FindMembershipByRoomId(string roomId)
+        public async Task<bool> IsMemberAsync(string roomId)
         {
-            foreach(Room m in Memberships)
-            {
-                if(m.RoomId == roomId)
-                {
-                    return m;
-                }
-            }
-            
-            return null;
+            var memberships = await GetMembershipsAsync();
+
+            return memberships.Contains(roomId);
         }
     }
 }
