@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Manfred.Daos;
 using HipChat.Net;
 using HipChat.Net.Clients;
@@ -46,7 +47,7 @@ namespace Manfred
 
             services.Configure<Settings>(Configuration.GetSection("Manfred"));
             
-            services.AddSingleton<IMembershipRepository>(new InMemoryMembershipRepository());
+            services.AddSingleton<IMembershipRepository>(sp => new DynamoMembershipRepository(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));
             
             var apiKey = Configuration.GetSection("Manfred").GetValue<string>("ApiKey");
             var hipChat = new HipChatClient(new ApiConnection(new Credentials(apiKey)));
