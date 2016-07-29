@@ -54,11 +54,6 @@ namespace Manfred.Daos
                         AttributeName = "Jid",
                         // "S" = string, "N" = number, and so on.
                         AttributeType = "S"
-                    },
-                    new AttributeDefinition
-                    {
-                        AttributeName = "Rooms",
-                        AttributeType = "SS"
                     }
                 },
                 KeySchema = new List<KeySchemaElement>
