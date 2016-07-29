@@ -77,6 +77,7 @@ namespace Manfred.Daos
                 },
             };
 
+            logger.LogInformation($"creating table {TableName}");
             var response = Client.CreateTableAsync(request).Result;
 
             logger.LogInformation("Table created with request ID: " +
@@ -94,6 +95,8 @@ namespace Manfred.Daos
         
                 try
                 {
+                    logger.LogInformation($"checking table {TableName}");
+
                     var response = Client.DescribeTableAsync(new DescribeTableRequest
                     {
                         TableName = this.TableName
@@ -157,12 +160,6 @@ namespace Manfred.Daos
                 {
                     {":room", new AttributeValue { SS = {roomId}}}
                 },
-
-                // This expression does the following:
-                // 1) Adds two new authors to the list
-                // 2) Reduces the price
-                // 3) Adds a new attribute to the item
-                // 4) Removes the ISBN attribute from the item
                 UpdateExpression = "DELETE #R :room"
             };
 
