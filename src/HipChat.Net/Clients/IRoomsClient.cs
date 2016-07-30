@@ -111,6 +111,14 @@ namespace HipChat.Net.Clients
     Task<IResponse<Webhook>> GetRoomWebhookAsync(string room, string hookKey);
 
     /// <summary>
+    /// Deletes the room webhook.
+    /// </summary>
+    /// <param name="room">The room.</param>
+    /// <param name="webhookKey">The webhook key.</param>
+    /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
+    Task<IResponse<bool>> DeleteRoomWebhookAsync(string room, string webhookKey);
+
+    /// <summary>
     /// Creates the webhook.
     /// </summary>
     /// <param name="room">The room.</param>

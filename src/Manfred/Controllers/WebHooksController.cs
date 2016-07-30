@@ -59,7 +59,7 @@ namespace Manfred.Controllers
         {
             if(m.WebHookKey == null)
             {
-                m.WebHookKey = new Guid().ToString();
+                m.WebHookKey = Guid.NewGuid().ToString();
             }
 
             await WebHooks.AddWebHookAsync(m);
@@ -72,7 +72,11 @@ namespace Manfred.Controllers
             });
 
             m.HipChatId = created.Model.Id;
-            m.HipChatLink = created.Model.Links.Self;
+
+            if(created.Model.Links != null)
+            {
+                m.HipChatLink = created.Model.Links.Self;
+            }
 
             await WebHooks.AddWebHookAsync(m);
             
@@ -82,6 +86,8 @@ namespace Manfred.Controllers
         [HttpDelete("{roomId}/webhook/{webhookKey}")]
         public async Task<IActionResult> Delete(string roomId, string webhookKey)
         {
+            await Client.DeleteRoomWebhookAsync(roomId, webhookKey);
+            
             await WebHooks.RemoveWebHookAsync(roomId, webhookKey);
 
             return Ok();

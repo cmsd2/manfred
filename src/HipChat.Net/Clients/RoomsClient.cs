@@ -295,6 +295,28 @@ namespace HipChat.Net.Clients
     }
 
     /// <summary>
+    /// Delete room webhook
+    /// </summary>
+    /// <param name="room">The room.</param>
+    /// <param name="webhookKey">The webhook key.</param>
+    /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
+    public async Task<IResponse<bool>> DeleteRoomWebhookAsync(string room, string webhookKey)
+    {
+      Validate.Length(room, 100, "Room Id/Name");
+      Validate.Length(webhookKey, 40, "Webhook Key");
+      
+      var result = await ApiConnection.Client.DeleteAsync(string.Format("room/{0}/extension/webhook/{1}", room, WebUtility.UrlEncode(webhookKey)));
+      var rawResponse = await result.Content.ReadAsStringAsync();
+      var response = new Response<bool>(true)
+      {
+        Code = result.StatusCode,
+        Body = rawResponse,
+        ContentType = result.Content.Headers.ContentType.MediaType
+      };
+      return response;
+    }
+
+    /// <summary>
     /// Create room webhook
     /// </summary>
     /// <param name="room">The room.</param>
