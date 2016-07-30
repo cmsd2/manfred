@@ -1,6 +1,7 @@
 using System;
 using System.Runtime;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
@@ -75,12 +76,22 @@ namespace Manfred.Controllers  {
         {
             return new Descriptor {
                 Name = "Manfred",
-                Key = "",
+                Key = "uk.org.octomonkey.cmsd2.manfred",
                 Description = "Manfred HipChat Bot",
                 Links = new Links {
                     Self = $"{Settings.Url}"
                 },
                 Capabilities = new Capabilities {
+                    HipchatApiConsumer = new HipchatApiConsumer {
+                        FromName = "Manfred",
+                        Scopes = new List<string> {
+                            "send_message",
+                            "send_notification",
+                            "view_group",
+                            "view_messages",
+                            "view_room"
+                        }
+                    },
                     Installable = new Installable {
                         AllowGlobal = true,
                         AllowRoom = true,
@@ -89,6 +100,8 @@ namespace Manfred.Controllers  {
                     },
                     Configurable = new Configurable {
                         Url = $"{Settings.Url}/configuration"
+                    },
+                    Webhook = new List<Webhook> {
                     }
                 }
             };

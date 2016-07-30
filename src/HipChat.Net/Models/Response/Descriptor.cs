@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+
 namespace HipChat.Net.Models.Response
 {
     public class Descriptor
@@ -13,6 +17,8 @@ namespace HipChat.Net.Models.Response
     {
         public Installable Installable {get; set;}
         public Configurable Configurable {get; set;}
+        public HipchatApiConsumer HipchatApiConsumer {get; set;}
+        public List<Webhook> Webhook {get; set;}
     }
 
     public class Installable {
@@ -24,5 +30,17 @@ namespace HipChat.Net.Models.Response
 
     public class Configurable {
         public string Url {get; set;}
+    }
+
+    public class HipchatApiConsumer {
+        public string FromName {get; set;}
+        public List<string> Scopes {get; set;}
+        public Avatar Avatar {get; set;}
+    }
+
+    public class Avatar {
+        public string Url {get; set;}
+        [JsonProperty("url@2x")]
+        public string Url2x {get; set;}
     }
 }
