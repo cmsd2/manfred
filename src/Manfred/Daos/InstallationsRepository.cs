@@ -115,7 +115,14 @@ namespace Manfred.Daos
 
         public async Task<Installation> GetInstallationAsync(string groupId, string roomId = null)
         {
-            return await Context.LoadAsync<Installation>(groupId, roomId);
+            var installation = await Context.LoadAsync<Tables.Installations>(groupId, roomId);
+
+            return new Installation {
+                GroupId = installation.GroupId,
+                RoomId = installation.RoomId,
+                OauthId = installation.OauthId,
+                CapabilitiesUrl = installation.CapabilitiesUrl
+            };
         }
         
         public async Task CreateInstallationAsync(Installed installation)
