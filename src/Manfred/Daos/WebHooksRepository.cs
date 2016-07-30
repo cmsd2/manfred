@@ -75,11 +75,6 @@ namespace Manfred.Daos
                             {
                                 AttributeName = "RoomId",
                                 AttributeType = "S"
-                            },
-                            new AttributeDefinition
-                            {
-                                AttributeName = "WebHookKey",
-                                AttributeType = "S"
                             }
                         },
                         KeySchema = new List<KeySchemaElement>
@@ -93,11 +88,6 @@ namespace Manfred.Daos
                             new KeySchemaElement
                             {
                                 AttributeName = "RoomId",
-                                KeyType = "RANGE"
-                            },
-                            new  KeySchemaElement
-                            {
-                                AttributeName = "WebHookKey",
                                 KeyType = "RANGE"
                             }
                         },
