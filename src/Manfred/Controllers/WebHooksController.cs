@@ -98,6 +98,13 @@ namespace Manfred.Controllers
         {
             var hooks = await WebHooks.GetWebHooksAsync(roomId, webhookKey);
 
+            foreach(WebHook hook in hooks)
+            {
+                var resp = await Client.GetRoomWebhookAsync(hook.RoomId, hook.WebHookKey);
+
+                logger.LogInformation($"roomId={roomId} webhookKey={webhookKey} state={hook} webhook={resp.Model}");
+            }
+
             if(hooks.Count == 0)
             {
                 return NotFound();
