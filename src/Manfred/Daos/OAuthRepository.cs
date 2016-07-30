@@ -121,6 +121,11 @@ namespace Manfred.Daos
         {
             var row = await Context.LoadAsync<Tables.OAuth>(oauthId);
 
+            if(row == null)
+            {
+                return null;
+            }
+            
             return new Oauth {
                 OauthId = row.OauthId,
                 OauthSecret = row.OauthSecret,
