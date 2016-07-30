@@ -252,7 +252,7 @@ namespace HipChat.Net.Clients
     /// <param name="room">The room.</param>
     /// <param name="hook">The hook.</param>
     /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
-    public async Task<IResponse<bool>> CreateRoomWebhookAsync(string room, CreateWebhook hook)
+    public async Task<IResponse<Entity>> CreateRoomWebhookAsync(string room, CreateWebhook hook)
     {
       Validate.Length(room, 100, "Room Id/Name");
       Validate.Length(hook.Key, 40, "Webhook Key");
@@ -263,7 +263,8 @@ namespace HipChat.Net.Clients
 
       var result = await ApiConnection.Client.PutAsync(string.Format("room/{0}/extension/webhook/{1}", room, WebUtility.UrlEncode(hook.Key)), payload);
       var content = await result.Content.ReadAsStringAsync();
-      var response = new Response<bool>(true)
+      var entity = JsonConvert.DeserializeObject<Entity>(content);
+      var response = new Response<Entity>(entity)
       {
         Code = result.StatusCode,
         Body = content,
@@ -300,7 +301,7 @@ namespace HipChat.Net.Clients
     /// <param name="hook">The hook.</param>
     /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
     [Obsolete("Please use Create room webhook instead, which preserves extensions across add-on updates and requires only the view_messages scope")]
-    public async Task<IResponse<bool>> CreateWebhookAsync(string room, CreateWebhook hook)
+    public async Task<IResponse<Entity>> CreateWebhookAsync(string room, CreateWebhook hook)
     {
       Validate.Length(room, 100, "Room Id/Name");
       Validate.NotEmpty(hook.Url, "Webhook URL");
@@ -310,7 +311,8 @@ namespace HipChat.Net.Clients
 
       var result = await ApiConnection.Client.PostAsync(string.Format("room/{0}/webhook", room), payload);
       var content = await result.Content.ReadAsStringAsync();
-      var response = new Response<bool>(true)
+      var entity = JsonConvert.DeserializeObject<Entity>(content);
+      var response = new Response<Entity>(entity)
       {
         Code = result.StatusCode,
         Body = content,
@@ -329,7 +331,7 @@ namespace HipChat.Net.Clients
     /// <param name="pattern">The pattern.</param>
     /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
     [Obsolete("Please use Create room webhook instead, which preserves extensions across add-on updates and requires only the view_messages scope")]
-    public async Task<IResponse<bool>> CreateWebhookAsync(string room, Uri url, WebhookEvent webhookEvent, string name = null, string pattern = null)
+    public async Task<IResponse<Entity>> CreateWebhookAsync(string room, Uri url, WebhookEvent webhookEvent, string name = null, string pattern = null)
     {
       var hook = new CreateWebhook
       {

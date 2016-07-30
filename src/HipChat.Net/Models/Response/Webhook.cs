@@ -5,6 +5,9 @@ namespace HipChat.Net.Models.Response
   [JsonObject]
   public class Webhook
   {
+    [JsonProperty("id")]
+    public string Id {get; set;}
+    
     [JsonProperty("url")]
     public string Url { get; set; }
     

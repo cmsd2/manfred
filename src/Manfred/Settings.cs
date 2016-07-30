@@ -6,6 +6,8 @@ namespace Manfred
         public AwsSettings Aws {get; set;}
 
         public string Jid {get; set;}
+
+        public string Url {get; set;}
     }
 
     public class AwsSettings

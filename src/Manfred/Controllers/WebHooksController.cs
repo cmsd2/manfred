@@ -1,26 +1,43 @@
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Net;
 using Microsoft.AspNetCore.Mvc.Core;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Manfred.Models;
 using Manfred.Daos;
 using HipChat.Net.Clients;
 using HipChat.Net.Helpers;
+using HipChat.Net.Models.Request;
+using HipChat.Net.Models.Response;
 
 namespace Manfred.Controllers
 {
     [Route("api/[controller]")]
     public class WebHooksController : Controller
     {
+        private ILogger logger;
+
         private IWebHookRepository WebHooks {get; set;}
 
         private IRoomsClient Client {get; set;}
+
+        private Settings Settings {get; set;}
         
-        public WebHooksController(IWebHookRepository webHooks, IRoomsClient client)
+        public WebHooksController(ILoggerFactory loggerFactory, IWebHookRepository webHooks, IRoomsClient client, IOptions<Settings> settings)
         {
+            logger = loggerFactory.CreateLogger<WebHooksController>();
             WebHooks = webHooks;
             Client = client;
+            Settings = settings.Value;
+        }
+
+        public string BuildWebHookLink(WebHook webhook)
+        {
+            return $"{Settings.Url}/api/webhooks/{webhook.RoomId}/webhook/{WebUtility.UrlEncode(webhook.WebHookKey)}";
         }
         
         [HttpGet]
@@ -28,10 +45,35 @@ namespace Manfred.Controllers
         {
             return await WebHooks.GetWebHooksAsync();
         }
+
+        [HttpPost("{roomId}/webhook/{webhookKey}")]
+        public Task<IActionResult> Event(string roomId, string webhookKey, [FromBody] string webhookPayload)
+        {
+            var payload = JsonConvert.DeserializeObject<WebhookPayload>(webhookPayload, new WebhookPayloadConverter());
+            logger.LogInformation($"room={roomId} webhookKey={webhookKey} payload={payload}");
+            return Task.FromResult<IActionResult>(Ok());
+        }
            
         [HttpPut]
         public async Task<IActionResult> Create([FromBody] WebHook m)
         {
+            if(m.WebHookKey == null)
+            {
+                m.WebHookKey = new Guid().ToString();
+            }
+
+            await WebHooks.AddWebHookAsync(m);
+
+            var created = await Client.CreateRoomWebhookAsync(m.RoomId, new CreateWebhook {
+                Authentication = WebhookAuthentication.Jwt,
+                Key = m.WebHookKey,
+                Url = BuildWebHookLink(m),
+                Event = WebhookEvent.RoomMessage
+            });
+
+            m.HipChatId = created.Model.Id;
+            m.HipChatLink = created.Model.Links.Self;
+
             await WebHooks.AddWebHookAsync(m);
             
             return Ok(m);

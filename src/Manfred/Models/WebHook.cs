@@ -4,5 +4,7 @@ namespace Manfred.Models
     {
         public string RoomId {get; set;}
         public string WebHookKey {get; set;}
+        public string HipChatId {get; set;}
+        public string HipChatLink {get; set;}
     }
 }

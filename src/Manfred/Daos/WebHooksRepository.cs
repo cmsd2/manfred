@@ -26,6 +26,10 @@ namespace Manfred.Daos
             public String RoomId {get; set;}
 
             public string WebHookKey {get; set;}
+
+            public string HipChatId {get; set;}
+
+            public string HipChatLink {get; set;}
         }
     }
 
@@ -148,7 +152,9 @@ namespace Manfred.Daos
                 foreach(Document row in rows) {
                     webhooks.Add(new WebHook {
                         RoomId = row["RoomId"].AsString(),
-                        WebHookKey = row["WebHookKey"].AsString()
+                        WebHookKey = row["WebHookKey"].AsString(),
+                        HipChatId = (row["HipChatId"] ?? "").AsString(),
+                        HipChatLink = (row["HipChatLink"] ?? "").AsString()
                     });
                 }
             }
@@ -162,7 +168,9 @@ namespace Manfred.Daos
                 Jid = Settings.Jid,
                 RoomIdAndWebHookKey = BuildRangeKey(webhook.RoomId, webhook.WebHookKey),
                 RoomId = webhook.RoomId,
-                WebHookKey = webhook.WebHookKey
+                WebHookKey = webhook.WebHookKey,
+                HipChatId = webhook.HipChatId,
+                HipChatLink = webhook.HipChatLink
             };
 
             await Context.SaveAsync(row);
