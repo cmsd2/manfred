@@ -117,6 +117,11 @@ namespace Manfred.Daos
         {
             var installation = await Context.LoadAsync<Tables.Installations>(groupId, roomId);
 
+            if(installation == null)
+            {
+                return null;
+            }
+
             return new Installation {
                 GroupId = installation.GroupId,
                 RoomId = installation.RoomId,
