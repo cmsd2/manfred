@@ -150,12 +150,22 @@ namespace Manfred.Daos
                 List<Document> rows = await search.GetNextSetAsync();
 
                 foreach(Document row in rows) {
-                    webhooks.Add(new WebHook {
+                    var hook = new WebHook {
                         RoomId = row["RoomId"].AsString(),
-                        WebHookKey = row["WebHookKey"].AsString(),
-                        HipChatId = (row["HipChatId"] ?? "").AsString(),
-                        HipChatLink = (row["HipChatLink"] ?? "").AsString()
-                    });
+                        WebHookKey = row["WebHookKey"].AsString()
+                    };
+
+                    if(row.Keys.Contains("HipChatId")) 
+                    {
+                        hook.HipChatId = row["HipChatId"].AsString();
+                    }
+
+                    if(row.Keys.Contains("HipChatLink")) 
+                    {
+                        hook.HipChatId = row["HipChatLink"].AsString();
+                    }
+
+                    webhooks.Add(hook);
                 }
             }
 
