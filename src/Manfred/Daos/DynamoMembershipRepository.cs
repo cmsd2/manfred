@@ -17,7 +17,7 @@ namespace Manfred.Daos
     {
         [DynamoDBHashKey]
         public string Jid { get; set; }
-        public List<string> Rooms {get; set;}
+        public List<string> Rooms { get; set; }
     }
 
     public class DynamoMembershipRepository : IMembershipRepository
@@ -26,7 +26,7 @@ namespace Manfred.Daos
 
         public AmazonDynamoDBClient Client { get; set; }
         public DynamoDBContext Context { get; set; }
-        public Settings Settings {get; set;}
+        public Settings Settings { get; set; }
         public readonly string TableName = "Memberships";
 
         public DynamoMembershipRepository(ILoggerFactory loggerFactory, IOptions<Settings> settings)
@@ -39,78 +39,83 @@ namespace Manfred.Daos
             Context = new DynamoDBContext(Client);
 
             CreateTable();
-            WaitForTable();
         }
 
         public void CreateTable()
         {
-            var request = new CreateTableRequest
+            while (!TableExists())
             {
-                TableName = this.TableName,
-                AttributeDefinitions = new List<AttributeDefinition>
+                try
                 {
-                    new AttributeDefinition
+                    var request = new CreateTableRequest
                     {
-                        AttributeName = "Jid",
-                        // "S" = string, "N" = number, and so on.
-                        AttributeType = "S"
-                    }
-                },
-                KeySchema = new List<KeySchemaElement>
-                {
-                    new KeySchemaElement
-                    {
-                        AttributeName = "Jid",
-                        // "HASH" = hash key, "RANGE" = range key.
-                        KeyType = "HASH"
-                    }
-                },
-                ProvisionedThroughput = new ProvisionedThroughput
-                {
-                    ReadCapacityUnits = 1,
-                    WriteCapacityUnits = 1
-                },
-            };
+                        TableName = this.TableName,
+                        AttributeDefinitions = new List<AttributeDefinition>
+                        {
+                            new AttributeDefinition
+                            {
+                                AttributeName = "Jid",
+                                // "S" = string, "N" = number, and so on.
+                                AttributeType = "S"
+                            }
+                        },
+                        KeySchema = new List<KeySchemaElement>
+                        {
+                            new KeySchemaElement
+                            {
+                                AttributeName = "Jid",
+                                // "HASH" = hash key, "RANGE" = range key.
+                                KeyType = "HASH"
+                            }
+                        },
+                        ProvisionedThroughput = new ProvisionedThroughput
+                        {
+                            ReadCapacityUnits = 1,
+                            WriteCapacityUnits = 1
+                        },
+                    };
 
-            logger.LogInformation($"creating table {TableName}");
-            var response = Client.CreateTableAsync(request).Result;
+                    logger.LogInformation($"creating table {TableName}");
+                    var response = Client.CreateTableAsync(request).Result;
 
-            logger.LogInformation("Table created with request ID: " +
-              response.ResponseMetadata.RequestId);
+                    logger.LogInformation("Table created with request ID: " +
+                        response.ResponseMetadata.RequestId);
+                }
+                catch (ResourceInUseException e)
+                {
+                    logger.LogInformation($"CreateTable = {this.TableName}, Error = {e.Message}");
+                }
+            }
         }
 
-        public void WaitForTable()
+        public bool TableExists()
         {
             var status = "";
 
-            do
+            try
             {
-                // Wait 5 seconds before checking (again).
-                System.Threading.Thread.Sleep(TimeSpan.FromSeconds(5));
-        
-                try
+                logger.LogInformation($"checking table {TableName}");
+
+                var response = Client.DescribeTableAsync(new DescribeTableRequest
                 {
-                    logger.LogInformation($"checking table {TableName}");
+                    TableName = this.TableName
+                }).Result;
 
-                    var response = Client.DescribeTableAsync(new DescribeTableRequest
-                    {
-                        TableName = this.TableName
-                    }).Result;
+                logger.LogInformation("Table = {0}, Status = {1}",
+                    response.Table.TableName,
+                    response.Table.TableStatus);
 
-                    logger.LogInformation("Table = {0}, Status = {1}",
-                        response.Table.TableName,
-                        response.Table.TableStatus);
+                status = response.Table.TableStatus;
+            }
+            catch (ResourceNotFoundException e)
+            {
+                logger.LogInformation("DescribeTable = {0}, Error = {1}", this.TableName, e.Message);
+                // DescribeTable is eventually consistent. So you might
+                //   get resource not found. 
+                return false;
+            }
 
-                    status = response.Table.TableStatus;
-                }
-                catch (ResourceNotFoundException e)
-                {
-                    logger.LogInformation("DescribeTable = {0}, Error = {1}", this.TableName, e.Message);
-                    // DescribeTable is eventually consistent. So you might
-                    //   get resource not found. 
-                }
-
-            } while (status != TableStatus.ACTIVE);
+            return true;
         }
 
         public async Task<List<string>> GetMembershipsAsync()
@@ -125,8 +130,8 @@ namespace Manfred.Daos
             var request = new UpdateItemRequest
             {
                 TableName = this.TableName,
-                Key = new Dictionary<string,AttributeValue>() { { "Jid", new AttributeValue { S = Settings.Jid } } },
-                ExpressionAttributeNames = new Dictionary<string,string>()
+                Key = new Dictionary<string, AttributeValue>() { { "Jid", new AttributeValue { S = Settings.Jid } } },
+                ExpressionAttributeNames = new Dictionary<string, string>()
                 {
                     {"#R", "Rooms"}
                 },
@@ -146,8 +151,8 @@ namespace Manfred.Daos
             var request = new UpdateItemRequest
             {
                 TableName = this.TableName,
-                Key = new Dictionary<string,AttributeValue>() { { "Jid", new AttributeValue { S = Settings.Jid } } },
-                ExpressionAttributeNames = new Dictionary<string,string>()
+                Key = new Dictionary<string, AttributeValue>() { { "Jid", new AttributeValue { S = Settings.Jid } } },
+                ExpressionAttributeNames = new Dictionary<string, string>()
                 {
                     {"#R", "Rooms"}
                 },
