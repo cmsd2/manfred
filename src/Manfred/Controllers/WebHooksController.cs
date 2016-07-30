@@ -29,7 +29,7 @@ namespace Manfred.Controllers
             return await WebHooks.GetWebHooksAsync();
         }
            
-        [HttpPut("{roomId}/webhook/{webhookKey}")]
+        [HttpPut]
         public async Task<IActionResult> Create([FromBody] WebHook m)
         {
             await WebHooks.AddWebHookAsync(m);
