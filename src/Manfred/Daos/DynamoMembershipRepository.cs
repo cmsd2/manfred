@@ -43,6 +43,8 @@ namespace Manfred.Daos
 
         public void CreateTable()
         {
+            int sleepTime = 1;
+
             while (!TableExists())
             {
                 try
@@ -85,6 +87,8 @@ namespace Manfred.Daos
                 {
                     logger.LogInformation($"CreateTable = {this.TableName}, Error = {e.Message}");
                 }
+
+                System.Threading.Thread.Sleep(TimeSpan.FromSeconds(sleepTime++));
             }
         }
 
