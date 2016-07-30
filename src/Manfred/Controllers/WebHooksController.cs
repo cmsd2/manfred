@@ -71,6 +71,8 @@ namespace Manfred.Controllers
                 Event = WebhookEvent.RoomMessage
             });
 
+            logger.LogInformation($"created webhook Code={created.Code} Response={created.Body}");
+
             m.HipChatId = created.Model.Id;
 
             if(created.Model.Links != null)
