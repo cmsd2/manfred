@@ -11,13 +11,15 @@ using Manfred.Models;
 
 namespace Manfred.Daos
 {
-
-    [DynamoDBTable("Memberships")]
-    public class DynamoMemberships
+    namespace Tables
     {
-        [DynamoDBHashKey]
-        public string Jid { get; set; }
-        public List<string> Rooms { get; set; }
+        [DynamoDBTable("Memberships")]
+        public class Memberships
+        {
+            [DynamoDBHashKey]
+            public string Jid { get; set; }
+            public List<string> Rooms { get; set; }
+        }
     }
 
     public class DynamoMembershipRepository : IMembershipRepository
@@ -124,7 +126,7 @@ namespace Manfred.Daos
 
         public async Task<List<string>> GetMembershipsAsync()
         {
-            var memberships = await Context.LoadAsync<DynamoMemberships>(Settings.Jid);
+            var memberships = await Context.LoadAsync<Tables.Memberships>(Settings.Jid);
 
             return memberships.Rooms;
         }
