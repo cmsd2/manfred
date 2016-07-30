@@ -33,7 +33,14 @@ namespace Manfred.Controllers  {
 
             var installation = await Installations.GetInstallationAsync(groupId);
 
-            return Ok(installation);
+            if(installation != null)
+            {
+                return Ok(installation);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         [HttpGet("{groupId}/room/{roomId}")]
@@ -43,7 +50,14 @@ namespace Manfred.Controllers  {
 
             var installation = await Installations.GetInstallationAsync(groupId, roomId);
 
-            return Ok(installation);
+            if(installation != null)
+            {
+                return Ok(installation);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
         
         [HttpPost]
