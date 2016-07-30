@@ -31,6 +31,8 @@ namespace Manfred.Daos
         public Settings Settings { get; set; }
         public readonly string TableName = "Memberships";
 
+        private DynamoUtils dynamoUtils;
+
         public DynamoMembershipRepository(ILoggerFactory loggerFactory, IOptions<Settings> settings)
         {
             logger = loggerFactory.CreateLogger<DynamoMembershipRepository>();
@@ -39,6 +41,7 @@ namespace Manfred.Daos
             AWSCredentials credentials = new BasicAWSCredentials(settings.Value.Aws.AccessKeyId, settings.Value.Aws.SecretAccessKey);
             Client = new AmazonDynamoDBClient(credentials);
             Context = new DynamoDBContext(Client);
+            dynamoUtils = new DynamoUtils(loggerFactory, Client);
 
             CreateTable();
         }
@@ -47,7 +50,7 @@ namespace Manfred.Daos
         {
             int sleepTime = 1;
 
-            while (!TableExists())
+            while (!dynamoUtils.TableExists(TableName))
             {
                 try
                 {
@@ -92,36 +95,6 @@ namespace Manfred.Daos
 
                 System.Threading.Thread.Sleep(TimeSpan.FromSeconds(sleepTime++));
             }
-        }
-
-        public bool TableExists()
-        {
-            var status = "";
-
-            try
-            {
-                logger.LogInformation($"checking table {TableName}");
-
-                var response = Client.DescribeTableAsync(new DescribeTableRequest
-                {
-                    TableName = this.TableName
-                }).Result;
-
-                logger.LogInformation("Table = {0}, Status = {1}",
-                    response.Table.TableName,
-                    response.Table.TableStatus);
-
-                status = response.Table.TableStatus;
-            }
-            catch (ResourceNotFoundException e)
-            {
-                logger.LogInformation("DescribeTable = {0}, Error = {1}", this.TableName, e.Message);
-                // DescribeTable is eventually consistent. So you might
-                //   get resource not found. 
-                return false;
-            }
-
-            return true;
         }
 
         public async Task<List<string>> GetMembershipsAsync()
