@@ -68,6 +68,14 @@ namespace Manfred.Controllers  {
 
             await Installations.CreateInstallationAsync(installed);
 
+            await OAuth.CreateOauthAsync(new Oauth {
+                OauthId = installed.OauthId,
+                OauthSecret = installed.OauthSecret,
+                GroupId = installed.GroupId,
+                RoomId = installed.RoomId,
+                CapabilitiesUrl = installed.CapabilitiesUrl
+            });
+
             return Ok();
         }
 
