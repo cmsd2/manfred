@@ -21,9 +21,10 @@ namespace Manfred.Daos
             public string Jid { get; set; }
 
             [DynamoDBRangeKey]
-            public string RoomId {get; set;}
+            public string RoomIdAndWebHookKey {get; set;}
 
-            [DynamoDBRangeKey]
+            public String RoomId {get; set;}
+
             public string WebHookKey {get; set;}
         }
     }
@@ -52,6 +53,11 @@ namespace Manfred.Daos
             CreateTable();
         }
 
+        public string BuildRangeKey(string roomId, string webHookKey)
+        {
+            return $"{roomId}_{webHookKey}";
+        }
+
         public void CreateTable()
         {
             int sleepTime = 1;
@@ -73,7 +79,7 @@ namespace Manfred.Daos
                             },
                             new AttributeDefinition
                             {
-                                AttributeName = "RoomId",
+                                AttributeName = "RoomIdAndWebHookKey",
                                 AttributeType = "S"
                             }
                         },
@@ -87,7 +93,7 @@ namespace Manfred.Daos
                             },
                             new KeySchemaElement
                             {
-                                AttributeName = "RoomId",
+                                AttributeName = "RoomIdAndWebHookKey",
                                 KeyType = "RANGE"
                             }
                         },
@@ -125,6 +131,7 @@ namespace Manfred.Daos
 
             if(roomId != null) 
             {
+                queryFilter.AddCondition("RoomIdAndWebHookKey", QueryOperator.BeginsWith, BuildRangeKey(roomId, ""));
                 queryFilter.AddCondition("RoomId", QueryOperator.Equal, roomId);
                 if(webhookKey != null)
                 {
@@ -153,6 +160,7 @@ namespace Manfred.Daos
         {
             var row = new Tables.WebHooks {
                 Jid = Settings.Jid,
+                RoomIdAndWebHookKey = BuildRangeKey(webhook.RoomId, webhook.WebHookKey),
                 RoomId = webhook.RoomId,
                 WebHookKey = webhook.WebHookKey
             };
@@ -164,8 +172,7 @@ namespace Manfred.Daos
         {
             await Context.DeleteAsync(new Tables.WebHooks {
                 Jid = Settings.Jid,
-                RoomId = roomId,
-                WebHookKey = webhookKey
+                RoomIdAndWebHookKey = BuildRangeKey(roomId, webhookKey)
             });
         }
     }
