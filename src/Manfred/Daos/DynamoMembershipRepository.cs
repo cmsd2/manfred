@@ -18,7 +18,7 @@ namespace Manfred.Daos
         {
             [DynamoDBHashKey]
             public string Jid { get; set; }
-            public List<string> Rooms { get; set; }
+            public List<string> Rooms { get; set; } = new List<string>();
         }
     }
 
@@ -128,7 +128,7 @@ namespace Manfred.Daos
         {
             var memberships = await Context.LoadAsync<Tables.Memberships>(Settings.Jid);
 
-            return memberships.Rooms;
+            return (memberships ?? new Tables.Memberships()).Rooms;
         }
 
         public async Task AddMembershipAsync(string roomId)
