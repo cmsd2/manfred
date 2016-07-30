@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Core;
 using Microsoft.AspNetCore.Mvc;
 using Manfred.Models;
 using Manfred.Daos;
+using HipChat.Net.Clients;
 
 namespace Manfred.Controllers
 {
@@ -12,10 +13,13 @@ namespace Manfred.Controllers
     public class MembershipsController : Controller
     {
         private IMembershipRepository Memberships {get; set;}
+
+        private IRoomsClient Client {get; set;}
         
-        public MembershipsController(IMembershipRepository memberships)
+        public MembershipsController(IMembershipRepository memberships, IRoomsClient client)
         {
             Memberships = memberships;
+            Client = client;
         }
         
         [HttpGet]

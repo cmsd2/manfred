@@ -12,11 +12,17 @@ namespace HipChat.Net.Models.Request
     [JsonProperty("pattern")]
     public string Pattern { get; set; }
 
+    [JsonProperty("authentication"), JsonConverter(typeof(StringEnumConverter))]
+    public WebhookAuthentication Authentication { get; set; }
+
     [JsonProperty("event"), JsonConverter(typeof(StringEnumConverter))]
     public WebhookEvent Event { get; set; }
 
     [JsonProperty("name")]
     public string Name { get; set; }
+
+    [JsonProperty("key")]
+    public string Key { get; set; }
 
     public CreateWebhook()
     {

@@ -93,6 +93,23 @@ namespace HipChat.Net.Clients
     /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
     Task<IResponse<bool>> SendNotificationAsync(string room, SendNotification notification);
 
+
+    /// <summary>
+    /// Create room webhook
+    /// </summary>
+    /// <param name="room">The room.</param>
+    /// <param name="hook">The hook.</param>
+    /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
+    Task<IResponse<bool>> CreateRoomWebhookAsync(string room, CreateWebhook hook);
+
+    /// <summary>
+    /// Gets the room webhook.
+    /// </summary>
+    /// <param name="room">The room.</param>
+    /// <parma name="hookKey">The webhook key.</param>
+    /// <returns>Task&lt;IResponse&lt;Room&gt;&gt;.</returns>
+    Task<IResponse<Webhook>> GetRoomWebhookAsync(string room, string hookKey);
+
     /// <summary>
     /// Creates the webhook.
     /// </summary>
@@ -102,6 +119,7 @@ namespace HipChat.Net.Clients
     /// <param name="name">The name.</param>
     /// <param name="pattern">The pattern.</param>
     /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
+    [Obsolete("Please use Create room webhook instead, which preserves extensions across add-on updates and requires only the view_messages scope")]
     Task<IResponse<bool>> CreateWebhookAsync(string room, Uri url, WebhookEvent webhookEvent, string name = null, string pattern = null);
 
     /// <summary>
@@ -110,6 +128,7 @@ namespace HipChat.Net.Clients
     /// <param name="room">The room.</param>
     /// <param name="hook">The hook.</param>
     /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
+    [Obsolete("Please use Create room webhook instead, which preserves extensions across add-on updates and requires only the view_messages scope")]
     Task<IResponse<bool>> CreateWebhookAsync(string room, CreateWebhook hook);
 
     /// <summary>

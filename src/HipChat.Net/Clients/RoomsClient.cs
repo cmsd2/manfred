@@ -252,6 +252,54 @@ namespace HipChat.Net.Clients
     /// <param name="room">The room.</param>
     /// <param name="hook">The hook.</param>
     /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
+    public async Task<IResponse<bool>> CreateRoomWebhookAsync(string room, CreateWebhook hook)
+    {
+      Validate.Length(room, 100, "Room Id/Name");
+      Validate.Length(hook.Key, 40, "Webhook Key");
+      Validate.NotEmpty(hook.Url, "Webhook URL");
+
+      var json = JsonConvert.SerializeObject(hook, Formatting.None, _jsonSettings);
+      var payload = new StringContent(json, Encoding.UTF8, "application/json");
+
+      var result = await ApiConnection.Client.PutAsync(string.Format("room/{0}/extension/webhook/{1}", room, WebUtility.UrlEncode(hook.Key)), payload);
+      var content = await result.Content.ReadAsStringAsync();
+      var response = new Response<bool>(true)
+      {
+        Code = result.StatusCode,
+        Body = content,
+        ContentType = result.Content.Headers.ContentType.MediaType
+      };
+      return response;
+    }
+
+    /// <summary>
+    /// Get all room webhook
+    /// </summary>
+    /// <param name="room">The room.</param>
+    /// <param name="hookKey">The webhook key.</param>
+    /// <returns>Task&lt;IResponse&lt;Room&gt;&gt;.</returns>
+    public async Task<IResponse<Webhook>> GetRoomWebhookAsync(string room, string hookKey)
+    {
+      Validate.Length(room, 100, "Room Id/Name");
+      Validate.Length(hookKey, 40, "Webhook Key");
+
+      var rawResponse = await ApiConnection.Client.GetStringAsync(string.Format("room/{0}/extension/webhook/{1}", room, WebUtility.UrlEncode(hookKey)));
+      var context = JsonConvert.DeserializeObject<Webhook>(rawResponse);
+      var response = new Response<Webhook>(context)
+      {
+        Code = HttpStatusCode.OK,
+        Body = rawResponse
+      };
+      return response;
+    }
+
+    /// <summary>
+    /// Create room webhook
+    /// </summary>
+    /// <param name="room">The room.</param>
+    /// <param name="hook">The hook.</param>
+    /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
+    [Obsolete("Please use Create room webhook instead, which preserves extensions across add-on updates and requires only the view_messages scope")]
     public async Task<IResponse<bool>> CreateWebhookAsync(string room, CreateWebhook hook)
     {
       Validate.Length(room, 100, "Room Id/Name");
@@ -280,6 +328,7 @@ namespace HipChat.Net.Clients
     /// <param name="name">The name.</param>
     /// <param name="pattern">The pattern.</param>
     /// <returns>Task&lt;IResponse&lt;System.Boolean&gt;&gt;.</returns>
+    [Obsolete("Please use Create room webhook instead, which preserves extensions across add-on updates and requires only the view_messages scope")]
     public async Task<IResponse<bool>> CreateWebhookAsync(string room, Uri url, WebhookEvent webhookEvent, string name = null, string pattern = null)
     {
       var hook = new CreateWebhook
@@ -291,7 +340,10 @@ namespace HipChat.Net.Clients
       if (pattern != null && (webhookEvent == WebhookEvent.RoomMessage || webhookEvent == WebhookEvent.RoomNotification))
         hook.Pattern = pattern;
 
+// suppress warning of Obselete method usage
+#pragma warning disable CS0618
       return await CreateWebhookAsync(room, hook);
+#pragma warning restore CS0618
     }
 
     /// <summary>

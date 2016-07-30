@@ -48,6 +48,7 @@ namespace Manfred
             services.Configure<Settings>(Configuration.GetSection("Manfred"));
             
             services.AddSingleton<IMembershipRepository>(sp => new DynamoMembershipRepository(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));
+            services.AddSingleton<IWebHookRepository>(sp => new WebHooksRepository(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));
             
             var apiKey = Configuration.GetSection("Manfred").GetValue<string>("ApiKey");
             var hipChat = new HipChatClient(new ApiConnection(new Credentials(apiKey)));

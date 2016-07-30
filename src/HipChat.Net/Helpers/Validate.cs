@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace HipChat.Net.Helpers
 {
-  internal static class Validate
+  public static class Validate
   {
     /// <summary>
     /// Nots the null.

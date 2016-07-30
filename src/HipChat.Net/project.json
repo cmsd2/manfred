@@ -7,7 +7,8 @@
     "System.Net.Requests": "4.0.10",
     "Newtonsoft.Json": "8.0.2",
     "System.Net.Http": "4.1.0",
-    "System.Runtime.Serialization.Primitives": "4.1.1"
+    "System.Runtime.Serialization.Primitives": "4.1.1",
+    "System.Runtime.Extensions": "4.1.0"
   },
   "frameworks": {
     "net46": {

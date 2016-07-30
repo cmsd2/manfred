@@ -75,6 +75,18 @@
           "lib/net46/_._": {}
         }
       },
+      "System.Runtime.Extensions/4.1.0": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System"
+        ],
+        "compile": {
+          "ref/net45/_._": {}
+        },
+        "runtime": {
+          "lib/net45/_._": {}
+        }
+      },
       "System.Runtime.Serialization.Primitives/4.1.1": {
         "type": "package",
         "frameworkAssemblies": [
@@ -4301,6 +4313,7 @@
       "Newtonsoft.Json >= 8.0.2",
       "System.Net.Http >= 4.1.0",
       "System.Net.Requests >= 4.0.10",
+      "System.Runtime.Extensions >= 4.1.0",
       "System.Runtime.Serialization.Primitives >= 4.1.1"
     ],
     ".NETFramework,Version=v4.6": [
