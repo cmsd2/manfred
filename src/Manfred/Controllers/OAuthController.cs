@@ -20,7 +20,7 @@ namespace Manfred.Controllers  {
     [Route("api/[controller]")]
     public class OAuthController : Controller
     {
-        public static readonly string Scopes = "send_message,send_notification,view_group,view_messages,view_room";
+        public static readonly string Scopes = "send_message+send_notification+view_group+view_messages+view_room";
         public Settings Settings {get; set;}
         public IOAuthRepository OAuth {get; set;}
 
