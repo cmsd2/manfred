@@ -186,8 +186,23 @@ namespace Manfred.Daos
                 {
                     return await action(hipChatClient);
                 }
+                catch (HttpRequestException e)
+                {
+                    logger.LogInformation($"HttpRequestException attempt={attempt} error={e.Message}");
+
+                    if(e.Message == "Response status code does not indicate success: 401 (Unauthorized).")
+                    {
+                        token = await Renew(token.OauthId);
+                    }
+                    else
+                    {
+                        lastError = e;
+                    }
+                }
                 catch (SimpleHttpResponseException e)
                 {
+                    logger.LogInformation($"SimpleHttpResponseException attempt={attempt} error={e.Message}");
+
                     if(e.StatusCode == HttpStatusCode.Unauthorized)
                     {
                         token = await Renew(token.OauthId);
