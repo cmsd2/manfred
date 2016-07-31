@@ -177,12 +177,12 @@ namespace Manfred.Daos
             {
                 DateTime addedDate = startDate.AddDays(i);
 
-                await QueryEventLogs(groupId, roomId, addedDate.Day, startDate, endDate, receiver);
-
                 if(addedDate.Date > endDate)
                 {
                     break;
                 }
+
+                await QueryEventLogs(groupId, roomId, addedDate.Day, startDate, endDate, receiver);
             }
         }
 
