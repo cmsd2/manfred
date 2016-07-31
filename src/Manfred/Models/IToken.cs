@@ -7,5 +7,6 @@ namespace Manfred.Models
         string AccessToken {get; set;}
         string ExpiresAt {get; set;}
         List<string> Scopes {get; set;}
+        string OauthId {get; set;}
     }
 }

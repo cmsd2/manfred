@@ -17,6 +17,7 @@ using System.Net.Http.Headers;
 using Manfred;
 using HipChat.Net;
 using HipChat.Net.Http;
+using System.Net;
 
 namespace Manfred.Daos
 {
@@ -55,7 +56,7 @@ namespace Manfred.Daos
             logger.LogInformation($"token response code={response.StatusCode}");
             var json = await response.Content.ReadAsStringAsync();
             logger.LogInformation($"token response content={json}");
-            response.EnsureSuccessStatusCode();
+            await response.EnsureSuccessStatusCodeAsync();
             return JObject.Parse(json);
         }
 
@@ -148,11 +149,15 @@ namespace Manfred.Daos
         public async Task<HipChatClient> GetHipChatClient(string groupId, string roomId = null)
         {
             var installation = await Installations.GetInstallationAsync(groupId, roomId);
-            IToken token = installation;
 
-            if(installation.AccessToken == null)
+            return await GetHipChatClient(installation);
+        }
+
+        public async Task<HipChatClient> GetHipChatClient(IToken token)
+        {
+            if(token.AccessToken == null)
             {
-                token = await Renew(installation.OauthId);
+                token = await Renew(token.OauthId);
             }
 
             if(token.AccessToken == null)
@@ -161,6 +166,42 @@ namespace Manfred.Daos
             }
 
             return new HipChatClient(new ApiConnection(new Credentials(token.AccessToken)));
+        }
+
+        public async Task<TResult> Exec<TResult>(IToken token, Func<HipChatClient,Task<TResult>> action, int attempts = 2)
+        {
+            int attempt = 1;
+            Exception lastError = null;
+
+            if(attempts < 1)
+            {
+                throw new ArgumentException("attempts must be greater than or equal to 1");
+            }
+
+            while(attempt <= attempts)
+            {
+                HipChatClient hipChatClient = await GetHipChatClient(token);
+
+                try
+                {
+                    return await action(hipChatClient);
+                }
+                catch (SimpleHttpResponseException e)
+                {
+                    if(e.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        token = await Renew(token.OauthId);
+                    }
+                    else
+                    {
+                        lastError = e;
+                    }
+                }
+
+                attempt++;
+            }
+
+            throw lastError;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using HipChat.Net;
 using IdentityModel.Client;
@@ -17,5 +18,9 @@ namespace Manfred.Daos
         Task Clear(string oauthId);
 
         Task<HipChatClient> GetHipChatClient(string groupId, string roomId = null);
+
+        Task<HipChatClient> GetHipChatClient(IToken token);
+
+        Task<TResult> Exec<TResult>(IToken token, Func<HipChatClient,Task<TResult>> action, int attempts = 2);
     }
 }

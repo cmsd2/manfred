@@ -79,8 +79,16 @@ namespace Manfred.Controllers
         public async Task<IActionResult> Create([FromBody] WebHook m)
         {
             Validate.NotEmpty(m.GroupId, "Hipchat GroupId");
+            logger.LogInformation($"creating webhook for installation GroupId={m.GroupId} RoomId={m.RoomId}");
 
-            var hipChatClient = await Tokens.GetHipChatClient(m.GroupId, m.RoomId);
+            var installation = await Installations.GetInstallationAsync(m.GroupId, m.RoomId);
+
+            if(installation == null)
+            {
+                return NotFound();
+            }
+
+            logger.LogInformation($"found token OauthId={installation.OauthId} ExpiresAt={installation.ExpiresAt}");
 
             if(m.WebHookKey == null)
             {
@@ -89,11 +97,13 @@ namespace Manfred.Controllers
 
             await WebHooks.AddWebHookAsync(m);
 
-            var created = await hipChatClient.Rooms.CreateRoomWebhookAsync(m.RoomId, new CreateWebhook {
-                Authentication = WebhookAuthentication.Jwt,
-                Key = m.WebHookKey,
-                Url = BuildWebHookLink(m),
-                Event = WebhookEvent.RoomMessage
+            var created = await Tokens.Exec(installation, async hipChatClient => {
+                return await hipChatClient.Rooms.CreateRoomWebhookAsync(m.RoomId, new CreateWebhook {
+                    Authentication = WebhookAuthentication.Jwt,
+                    Key = m.WebHookKey,
+                    Url = BuildWebHookLink(m),
+                    Event = WebhookEvent.RoomMessage
+                });
             });
 
             logger.LogInformation($"created webhook Code={created.Code} Response={created.Body}");
@@ -113,9 +123,12 @@ namespace Manfred.Controllers
         [HttpDelete("{groupId}/room/{roomId}/webhook/{webhookKey}")]
         public async Task<IActionResult> Delete(string groupId, string roomId, string webhookKey)
         {
-            var hipChatClient = await Tokens.GetHipChatClient(groupId, roomId);
+            var installation = await Installations.GetInstallationAsync(groupId, roomId);
 
-            await hipChatClient.Rooms.DeleteRoomWebhookAsync(roomId, webhookKey);
+            await Tokens.Exec<object>(installation, async hipChatClient => {
+                await hipChatClient.Rooms.DeleteRoomWebhookAsync(roomId, webhookKey);
+                return null;
+            });
             
             await WebHooks.RemoveWebHookAsync(groupId, roomId, webhookKey);
 
@@ -125,13 +138,15 @@ namespace Manfred.Controllers
         [HttpGet("{groupId}/room/{roomId}/webhook/{webhookKey}")]
         public async Task<IActionResult> GetRoomWebHook(string groupId, string roomId, string webhookKey)
         {
-            var hipChatClient = await Tokens.GetHipChatClient(groupId, roomId);
+            var installation = await Installations.GetInstallationAsync(groupId, roomId);
 
             var hooks = await WebHooks.GetWebHooksAsync(groupId, roomId, webhookKey);
 
             foreach(WebHook hook in hooks)
             {
-                var resp = await hipChatClient.Rooms.GetRoomWebhookAsync(hook.RoomId, hook.WebHookKey);
+                var resp = await Tokens.Exec(installation, async hipChatClient => {
+                    return await hipChatClient.Rooms.GetRoomWebhookAsync(hook.RoomId, hook.WebHookKey);
+                });
 
                 logger.LogInformation($"roomId={roomId} webhookKey={webhookKey} state={hook} webhook={resp.Model}");
             }
