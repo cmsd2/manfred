@@ -31,6 +31,8 @@ namespace Manfred.Daos
             public string AccessToken {get; set;}
 
             public string ExpiresAt {get; set;}
+
+            public List<string> Scopes {get; set;}
         }
     }
 
@@ -117,7 +119,8 @@ namespace Manfred.Daos
                 OauthId = oauth.OauthId,
                 OauthSecret = oauth.OauthSecret,
                 AccessToken = oauth.AccessToken,
-                ExpiresAt = oauth.ExpiresAt
+                ExpiresAt = oauth.ExpiresAt,
+                Scopes = oauth.Scopes
             };
 
             await Context.SaveAsync(row);
@@ -139,7 +142,8 @@ namespace Manfred.Daos
                 RoomId = row.RoomId,
                 CapabilitiesUrl = row.CapabilitiesUrl,
                 AccessToken = row.AccessToken,
-                ExpiresAt = row.ExpiresAt
+                ExpiresAt = row.ExpiresAt,
+                Scopes = row.Scopes
             };
         }
 
