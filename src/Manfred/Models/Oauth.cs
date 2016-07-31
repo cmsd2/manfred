@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Manfred.Models
 {
@@ -17,5 +18,7 @@ namespace Manfred.Models
         public string AccessToken {get; set;}
 
         public string ExpiresAt {get; set;}
+
+        public List<string> Scopes {get; set;}
     }
 }

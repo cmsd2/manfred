@@ -25,7 +25,9 @@ namespace Manfred.Daos
 
             public string CapabilitiesUrl {get; set;}
             public string OauthId {get; set;}
-            public string OauthSecret {get; set;}
+            public string AccessToken {get; set;}
+            public string ExpiresAt {get; set;}
+            public List<string> Scopes {get; set;}
         }
     }
 
@@ -126,19 +128,24 @@ namespace Manfred.Daos
                 GroupId = installation.GroupId,
                 RoomId = installation.RoomId,
                 OauthId = installation.OauthId,
-                CapabilitiesUrl = installation.CapabilitiesUrl
+                CapabilitiesUrl = installation.CapabilitiesUrl,
+                AccessToken = installation.AccessToken,
+                ExpiresAt = installation.ExpiresAt,
+                Scopes = installation.Scopes
             };
         }
         
-        public async Task CreateInstallationAsync(Installed installation)
+        public async Task CreateInstallationAsync(Installation installation)
         {
             var row = new Tables.Installations {
                 GroupId = installation.GroupId,
                 RoomId = installation.RoomId,
                 CapabilitiesUrl = installation.CapabilitiesUrl,
                 OauthId = installation.OauthId,
-                OauthSecret = installation.OauthSecret
-            };
+                AccessToken = installation.AccessToken,
+                ExpiresAt = installation.ExpiresAt,
+                Scopes = installation.Scopes
+          };
 
             await Context.SaveAsync(row);
         }

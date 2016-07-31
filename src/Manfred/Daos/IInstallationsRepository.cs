@@ -8,7 +8,7 @@ namespace Manfred.Daos
     {
         Task<Installation> GetInstallationAsync(string groupId, string roomId = null);
         
-        Task CreateInstallationAsync(Installed installation);
+        Task CreateInstallationAsync(Installation installation);
 
         Task RemoveInstallationAsync(string groupId, string roomId = null);
     }

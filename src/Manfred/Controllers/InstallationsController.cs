@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Manfred.Daos;
 using Manfred.Models;
 using HipChat.Net.Models.Response;
+using Manfred.ViewModels;
 
 namespace Manfred.Controllers  {
     [Route("api/[controller]")]
@@ -36,7 +37,7 @@ namespace Manfred.Controllers  {
 
             if(installation != null)
             {
-                return Ok(installation);
+                return Ok(new InstallationView(installation));
             }
             else
             {
@@ -53,7 +54,7 @@ namespace Manfred.Controllers  {
 
             if(installation != null)
             {
-                return Ok(installation);
+                return Ok(new InstallationView(installation));
             }
             else
             {
@@ -66,7 +67,12 @@ namespace Manfred.Controllers  {
         {
             logger.LogInformation($"Installed GroupId={installed.GroupId} RoomId={installed.RoomId}");
 
-            await Installations.CreateInstallationAsync(installed);
+            await Installations.CreateInstallationAsync(new Installation {
+                OauthId = installed.OauthId,
+                GroupId = installed.GroupId,
+                RoomId = installed.RoomId,
+                CapabilitiesUrl = installed.CapabilitiesUrl
+            });
 
             await OAuth.CreateOauthAsync(new Oauth {
                 OauthId = installed.OauthId,

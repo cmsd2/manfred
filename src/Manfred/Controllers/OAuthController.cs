@@ -20,19 +20,28 @@ namespace Manfred.Controllers  {
     [Route("api/[controller]")]
     public class OAuthController : Controller
     {
-        public static readonly string Scopes = "send_message send_notification view_group view_messages view_room";
+        public static readonly List<string> Scopes = new List<string> {
+            "send_message",
+            "send_notification",
+            "view_group",
+            "view_messages",
+            "view_room"
+        };
         public Settings Settings {get; set;}
         public IOAuthRepository OAuth {get; set;}
+
+        public IInstallationsRepository Installations {get; set;}
 
         public HttpClient HttpClient {get; set;}
 
         private ILogger logger;
 
-        public OAuthController(ILoggerFactory loggerFactory, IOptions<Settings> settings, IOAuthRepository oauthRepo)
+        public OAuthController(ILoggerFactory loggerFactory, IOptions<Settings> settings, IOAuthRepository oauthRepo, IInstallationsRepository installationsRepo)
         {
             logger = loggerFactory.CreateLogger<InstallationsController>();
             Settings = settings.Value;
             OAuth = oauthRepo;
+            Installations = installationsRepo;
             HttpClient = new HttpClient();
         }
 
@@ -58,9 +67,9 @@ namespace Manfred.Controllers  {
                 oauth.OauthId,
                 oauth.OauthSecret);
  
-            var token = await tokenClient.RequestClientCredentialsAsync(Scopes);
+            var token = await tokenClient.RequestClientCredentialsAsync(String.Join(" ", Scopes));
 
-            if(token.IsHttpError) 
+            if(token.IsHttpError)
             {
                 logger.LogInformation($"token code={token.HttpErrorStatusCode} httperr={token.HttpErrorReason}");
             }
@@ -114,8 +123,17 @@ namespace Manfred.Controllers  {
 
             oauth.AccessToken = token.AccessToken;
             oauth.ExpiresAt = DateTimeUTils.ToIsoString(DateTime.UtcNow.AddSeconds(token.ExpiresIn));
+            oauth.Scopes = Scopes;
 
             await OAuth.CreateOauthAsync(oauth);
+
+            var installation = await Installations.GetInstallationAsync(oauth.GroupId, oauth.RoomId);
+
+            installation.AccessToken = oauth.AccessToken;
+            installation.ExpiresAt = oauth.ExpiresAt;
+            installation.Scopes = oauth.Scopes;
+
+            await Installations.CreateInstallationAsync(installation);
 
             return Ok();
         }
@@ -134,8 +152,15 @@ namespace Manfred.Controllers  {
 
             oauth.AccessToken = null;
             oauth.ExpiresAt = null;
+            oauth.Scopes = null;
 
             await OAuth.CreateOauthAsync(oauth);
+
+            var installation = await Installations.GetInstallationAsync(oauth.GroupId, oauth.RoomId);
+
+            installation.AccessToken = null;
+            installation.ExpiresAt = null;
+            installation.Scopes = null;
 
             return Ok();
         }
