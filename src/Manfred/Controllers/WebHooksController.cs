@@ -57,25 +57,6 @@ namespace Manfred.Controllers
             return await WebHooks.GetWebHooksAsync(groupId, roomId);
         }
 
-        [HttpGet("{groupId}/room/{roomId}/webhook/{webhookKey}")]
-        public async Task<IActionResult> GetRoomWebHook(string groupId, string roomId, string webhookKey)
-        {
-            var webhooks = await WebHooks.GetWebHooksAsync(groupId, roomId, webhookKey);
-
-            if(webhooks.Count == 0)
-            {
-                return NotFound();
-            }
-
-            if(webhooks.Count > 1)
-            {
-                // can't happen
-                logger.LogWarning($"more than one webhook found for key groupId={groupId} roomId={roomId} webhookKey={webhookKey}");
-            }
-             
-            return  Ok(webhooks[0]);
-        }
-
         [HttpPost("{roomId}/webhook/{webhookKey}")]
         public Task<IActionResult> Event(string roomId, string webhookKey, [FromBody] string webhookPayload)
         {
@@ -132,11 +113,11 @@ namespace Manfred.Controllers
         }
         
         [HttpGet("{groupId}/room/{roomId}/webhook/{webhookKey}")]
-        public async Task<IActionResult> Get(string groupId, string roomId, string webhookKey)
+        public async Task<IActionResult> GetRoomWebHook(string groupId, string roomId, string webhookKey)
         {
             var hipChatClient = await Tokens.GetHipChatClient(groupId, roomId);
 
-            var hooks = await WebHooks.GetWebHooksAsync(roomId, webhookKey);
+            var hooks = await WebHooks.GetWebHooksAsync(groupId, roomId, webhookKey);
 
             foreach(WebHook hook in hooks)
             {
