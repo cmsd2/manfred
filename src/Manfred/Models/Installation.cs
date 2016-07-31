@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Manfred.Models
 {
-    public class Installation
+    public class Installation : IToken
     {
         public string CapabilitiesUrl {get; set;}
         public string OauthId {get; set;}
