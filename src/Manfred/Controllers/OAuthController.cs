@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Manfred.Daos;
 using Manfred.Models;
+using Manfred.ViewModels;
 using HipChat.Net.Models.Response;
 
 namespace Manfred.Controllers  {
@@ -34,7 +35,7 @@ namespace Manfred.Controllers  {
 
             if(oauth != null)
             {
-                return Ok(oauth);
+                return Ok(new OAuthView(oauth));
             }
             else
             {
