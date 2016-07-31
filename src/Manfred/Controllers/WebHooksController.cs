@@ -57,11 +57,11 @@ namespace Manfred.Controllers
             return await WebHooks.GetWebHooksAsync(groupId, roomId);
         }
 
-        [HttpPost("{roomId}/webhook/{webhookKey}")]
-        public Task<IActionResult> Event(string roomId, string webhookKey, [FromBody] string webhookPayload)
+        [HttpPost("{groupId}/room/{roomId}/webhook/{webhookKey}")]
+        public Task<IActionResult> RoomWebHookEvent(string groupId, string roomId, string webhookKey, [FromBody] string webhookPayload)
         {
             var payload = JsonConvert.DeserializeObject<WebhookPayload>(webhookPayload, new WebhookPayloadConverter());
-            logger.LogInformation($"room={roomId} webhookKey={webhookKey} payload={payload}");
+            logger.LogInformation($"groupId={groupId} room={roomId} webhookKey={webhookKey} payload={payload}");
             return Task.FromResult<IActionResult>(Ok());
         }
            
