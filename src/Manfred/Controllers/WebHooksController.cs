@@ -42,7 +42,7 @@ namespace Manfred.Controllers
 
         public string BuildWebHookLink(WebHook webhook)
         {
-            return $"{Settings.Url}/api/webhooks/{webhook.RoomId}/webhook/{WebUtility.UrlEncode(webhook.WebHookKey)}";
+            return $"{Settings.Url}/api/webhooks/{webhook.GroupId}/room/{webhook.RoomId}/webhook/{WebUtility.UrlEncode(webhook.WebHookKey)}";
         }
         
         [HttpGet("{groupId}")]
