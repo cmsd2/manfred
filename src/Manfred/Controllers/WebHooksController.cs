@@ -15,6 +15,7 @@ using HipChat.Net.Models.Request;
 using HipChat.Net.Models.Response;
 using HipChat.Net;
 using HipChat.Net.Http;
+using System.IO;
 
 namespace Manfred.Controllers
 {
@@ -58,10 +59,19 @@ namespace Manfred.Controllers
         }
 
         [HttpPost("{groupId}/room/{roomId}/webhook/{webhookKey}")]
-        public Task<IActionResult> RoomWebHookEvent(string groupId, string roomId, string webhookKey, [FromBody] string webhookPayload)
+        public Task<IActionResult> RoomWebHookEvent(string groupId, string roomId, string webhookKey)
         {
-            var payload = JsonConvert.DeserializeObject<WebhookPayload>(webhookPayload, new WebhookPayloadConverter());
-            logger.LogInformation($"groupId={groupId} room={roomId} webhookKey={webhookKey} payload={payload}");
+            if (Request.Body.CanSeek)
+            {
+                Request.Body.Position = 0;
+            }
+
+            var json = new StreamReader(Request.Body).ReadToEnd();
+
+            logger.LogInformation($"groupId={groupId} room={roomId} webhookKey={webhookKey} payload={json}");
+            
+            var payload = JsonConvert.DeserializeObject<WebhookPayload>(json, new WebhookPayloadConverter());
+
             return Task.FromResult<IActionResult>(Ok());
         }
            
