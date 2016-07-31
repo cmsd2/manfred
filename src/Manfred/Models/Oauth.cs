@@ -13,5 +13,9 @@ namespace Manfred.Models
         public string RoomId {get; set;}
 
         public string CapabilitiesUrl {get; set;}
+
+        public string AccessToken {get; set;}
+
+        public string ExpiresAt {get; set;}
     }
 }

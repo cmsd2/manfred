@@ -44,6 +44,22 @@
           "lib/netstandard1.5/AWSSDK.DynamoDBv2.dll": {}
         }
       },
+      "IdentityModel/2.0.0-beta5": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "9.0.1",
+          "System.Net.Http": "4.1.0",
+          "System.Security.Claims": "4.0.1",
+          "System.Security.Cryptography.Algorithms": "4.2.0",
+          "System.Security.Cryptography.X509Certificates": "4.1.0"
+        },
+        "compile": {
+          "lib/netstandard1.3/IdentityModel.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/IdentityModel.dll": {}
+        }
+      },
       "Libuv/1.9.0": {
         "type": "package",
         "dependencies": {
@@ -3437,6 +3453,7 @@
           "System.Dynamic.Runtime": "4.0.11",
           "System.Net.Http": "4.1.0",
           "System.Net.Requests": "4.0.10",
+          "System.Runtime.Extensions": "4.1.0",
           "System.Runtime.Serialization.Primitives": "4.1.1"
         }
       }
@@ -3501,6 +3518,17 @@
         "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid10+xamarinios10+MonoTouch10/AWSSDK.DynamoDBv2.pdb",
         "tools/install.ps1",
         "tools/uninstall.ps1"
+      ]
+    },
+    "IdentityModel/2.0.0-beta5": {
+      "sha512": "qkdVIk5esvHEN0Qo66yKtyz59vjwJNVxghcNeMGQJ7Jfv7VRL0XxhFrID855tkXuNMmG4uepXqEti4NxGiqVTw==",
+      "type": "package",
+      "path": "IdentityModel/2.0.0-beta5",
+      "files": [
+        "IdentityModel.2.0.0-beta5.nupkg.sha512",
+        "IdentityModel.nuspec",
+        "lib/net452/IdentityModel.dll",
+        "lib/netstandard1.3/IdentityModel.dll"
       ]
     },
     "Libuv/1.9.0": {
@@ -9229,6 +9257,7 @@
     "": [
       "AWSSDK.DynamoDBv2 >= 3.2.5-beta",
       "HipChat.Net >= 1.0.0",
+      "IdentityModel >= 2.0.0-beta5",
       "Microsoft.AspNetCore.Hosting >= 1.0.0",
       "Microsoft.AspNetCore.Http.Abstractions >= 1.0.0",
       "Microsoft.AspNetCore.Mvc >= 1.0.0",
