@@ -28,15 +28,18 @@ namespace Manfred.Controllers
 
         private IInstallationsRepository Installations {get; set;}
 
+        private IEventLogsRepository EventLogs {get; set;}
+
         private ITokensRepository Tokens {get; set;}
 
         private Settings Settings {get; set;}
         
-        public WebHooksController(ILoggerFactory loggerFactory, IWebHookRepository webHooks, IInstallationsRepository installationsRepo, ITokensRepository tokensRepo, IOptions<Settings> settings)
+        public WebHooksController(ILoggerFactory loggerFactory, IWebHookRepository webHooks, IInstallationsRepository installationsRepo, IEventLogsRepository eventLogsRepo, ITokensRepository tokensRepo, IOptions<Settings> settings)
         {
             logger = loggerFactory.CreateLogger<WebHooksController>();
             WebHooks = webHooks;
             Installations = installationsRepo;
+            EventLogs = eventLogsRepo;
             Tokens = tokensRepo;
             Settings = settings.Value;
         }
@@ -59,7 +62,7 @@ namespace Manfred.Controllers
         }
 
         [HttpPost("{groupId}/room/{roomId}/webhook/{webhookKey}")]
-        public Task<IActionResult> RoomWebHookEvent(string groupId, string roomId, string webhookKey)
+        public async Task<IActionResult> RoomWebHookEvent(string groupId, string roomId, string webhookKey)
         {
             if (Request.Body.CanSeek)
             {
@@ -69,10 +72,16 @@ namespace Manfred.Controllers
             var json = new StreamReader(Request.Body).ReadToEnd();
 
             logger.LogInformation($"groupId={groupId} room={roomId} webhookKey={webhookKey} payload={json}");
+
+            await EventLogs.AddEventLog(new EventLog {
+                GroupId = groupId,
+                RoomId = roomId,
+                Content = json
+            });
             
             var payload = JsonConvert.DeserializeObject<WebhookPayload>(json, new WebhookPayloadConverter());
 
-            return Task.FromResult<IActionResult>(Ok());
+            return Ok();
         }
            
         [HttpPut]
