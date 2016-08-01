@@ -78,7 +78,7 @@ namespace Manfred.Daos
 
             public static string BuildRangeKey(DateTime secondsSinceEpoch, string guid)
             {
-                return $"{DateTimeUTils.ToIsoString(secondsSinceEpoch)}_${guid}";
+                return $"{DateTimeUTils.ToIsoString(secondsSinceEpoch)}_{guid}";
             }
         }
     }
