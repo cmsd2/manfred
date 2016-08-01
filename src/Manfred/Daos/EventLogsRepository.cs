@@ -27,6 +27,10 @@ namespace Manfred.Daos
             public string RoomId {get; set;}
             public string Content {get; set;}
 
+            public EventLogs()
+            {
+            }
+
             public EventLogs(Manfred.Models.EventLog e)
             {
                 GroupId = e.GroupId;
