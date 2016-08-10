@@ -79,15 +79,15 @@ namespace Manfred.Controllers  {
         public Descriptor Descriptor()
         {
             return new Descriptor {
-                Name = "Manfred",
-                Key = "uk.org.octomonkey.cmsd2.manfred",
-                Description = "Manfred HipChat Bot",
+                Name = Settings.Meta.Name,
+                Key = Settings.Meta.Key,
+                Description = Settings.Meta.Description,
                 Links = new Links {
                     Self = $"{Settings.Url}"
                 },
                 Capabilities = new Capabilities {
                     HipchatApiConsumer = new HipchatApiConsumer {
-                        FromName = "Manfred",
+                        FromName = Settings.Meta.Name,
                         Scopes = new List<string> {
                             "send_message",
                             "send_notification",
