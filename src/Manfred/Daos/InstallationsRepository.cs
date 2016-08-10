@@ -71,6 +71,11 @@ namespace Manfred.Daos
                         {
                             AttributeName = "RoomId",
                             AttributeType = "S"
+                        },
+                        new AttributeDefinition
+                        {
+                            AttributeName = "OauthId",
+                            AttributeType = "S"
                         }
                     },
                     new List<KeySchemaElement>
