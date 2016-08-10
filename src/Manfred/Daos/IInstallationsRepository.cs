@@ -11,5 +11,9 @@ namespace Manfred.Daos
         Task CreateInstallationAsync(Installation installation);
 
         Task RemoveInstallationAsync(string groupId, string roomId = null);
+        
+        Task<Installation> GetInstallationByOauthIdAsync(string oauthId);
+
+        Task RemoveInstallationByOauthAsync(string oauthId);
     }
 }

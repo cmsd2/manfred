@@ -21,7 +21,6 @@ namespace Manfred.Controllers  {
     public class OAuthController : Controller
     {
         public Settings Settings {get; set;}
-        public IOAuthRepository OAuth {get; set;}
 
         public IInstallationsRepository Installations {get; set;}
 
@@ -31,11 +30,10 @@ namespace Manfred.Controllers  {
 
         private ILogger logger;
 
-        public OAuthController(ILoggerFactory loggerFactory, IOptions<Settings> settings, IOAuthRepository oauthRepo, IInstallationsRepository installationsRepo, ITokensRepository tokensRepo)
+        public OAuthController(ILoggerFactory loggerFactory, IOptions<Settings> settings, IInstallationsRepository installationsRepo, ITokensRepository tokensRepo)
         {
             logger = loggerFactory.CreateLogger<InstallationsController>();
             Settings = settings.Value;
-            OAuth = oauthRepo;
             Tokens = tokensRepo;
             Installations = installationsRepo;
             HttpClient = new HttpClient();
@@ -47,7 +45,7 @@ namespace Manfred.Controllers  {
         {
             logger.LogInformation($"show OAuthId={oauthId}");
 
-            var oauth = await OAuth.GetOauthAsync(oauthId);
+            var oauth = await Installations.GetInstallationByOauthIdAsync(oauthId);
 
             if(oauth != null)
             {

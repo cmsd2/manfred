@@ -23,6 +23,11 @@ namespace Manfred.Daos
             logger = loggerFactory.CreateLogger<DynamoUtils>();
             Client = client;
         }
+        
+        public string FullTableName(Settings settings, string tableName)
+        {
+            return $"{settings.TableNamePrefix ?? ""}{tableName}";
+        }
 
         public bool TableExists(string tableName)
         {
@@ -61,6 +66,47 @@ namespace Manfred.Daos
             }
 
             return true;
+        }
+        
+        public void CreateTable(string tableNamePrefix, string unprefixedTableName, List<AttributeDefinition> attributes, List<KeySchemaElement> keys, ProvisionedThroughput throughput = null, List<GlobalSecondaryIndex> globalSecondaryIndexes = null)
+        {
+            string tableName = $"{tableNamePrefix ?? ""}{unprefixedTableName}";
+            
+            int sleepTime = 1;
+            
+            throughput = throughput ?? new ProvisionedThroughput
+            {
+                ReadCapacityUnits = 1,
+                WriteCapacityUnits = 1
+            };
+          
+            globalSecondaryIndexes = globalSecondaryIndexes ?? new List<GlobalSecondaryIndex>();
+
+            while (!TableExists(tableName))
+            {
+                try
+                {
+                    var request = new CreateTableRequest
+                    {
+                        TableName = tableName,
+                        AttributeDefinitions = attributes,
+                        KeySchema = keys,
+                        ProvisionedThroughput = throughput,
+                        GlobalSecondaryIndexes = globalSecondaryIndexes
+                    };
+
+                    logger.LogInformation($"creating table {tableName}");
+                    var response = Client.CreateTableAsync(request).Result;
+
+                    logger.LogInformation($"create table result: {response.HttpStatusCode} requestId: {response.ResponseMetadata.RequestId} ");
+                }
+                catch (ResourceInUseException e)
+                {
+                    logger.LogInformation($"CreateTable = {tableName}, Error = {e.Message}");
+                }
+
+                System.Threading.Thread.Sleep(TimeSpan.FromSeconds(sleepTime++));
+            }
         }
     }
 }

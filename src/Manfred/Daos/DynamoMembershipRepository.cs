@@ -48,53 +48,30 @@ namespace Manfred.Daos
 
         public void CreateTable()
         {
-            int sleepTime = 1;
-
-            while (!dynamoUtils.TableExists(TableName))
-            {
-                try
-                {
-                    var request = new CreateTableRequest
+            dynamoUtils.CreateTable(Settings.TableNamePrefix, TableName, 
+                    new List<AttributeDefinition>
                     {
-                        TableName = this.TableName,
-                        AttributeDefinitions = new List<AttributeDefinition>
+                        new AttributeDefinition
                         {
-                            new AttributeDefinition
-                            {
-                                AttributeName = "Jid",
-                                // "S" = string, "N" = number, and so on.
-                                AttributeType = "S"
-                            }
-                        },
-                        KeySchema = new List<KeySchemaElement>
+                            AttributeName = "Jid",
+                            // "S" = string, "N" = number, and so on.
+                            AttributeType = "S"
+                        }
+                    },
+                    new List<KeySchemaElement>
+                    {
+                        new KeySchemaElement
                         {
-                            new KeySchemaElement
-                            {
-                                AttributeName = "Jid",
-                                // "HASH" = hash key, "RANGE" = range key.
-                                KeyType = "HASH"
-                            }
-                        },
-                        ProvisionedThroughput = new ProvisionedThroughput
-                        {
-                            ReadCapacityUnits = 1,
-                            WriteCapacityUnits = 1
-                        },
-                    };
-
-                    logger.LogInformation($"creating table {TableName}");
-                    var response = Client.CreateTableAsync(request).Result;
-
-                    logger.LogInformation("Table created with request ID: " +
-                        response.ResponseMetadata.RequestId);
-                }
-                catch (ResourceInUseException e)
-                {
-                    logger.LogInformation($"CreateTable = {this.TableName}, Error = {e.Message}");
-                }
-
-                System.Threading.Thread.Sleep(TimeSpan.FromSeconds(sleepTime++));
-            }
+                            AttributeName = "Jid",
+                            // "HASH" = hash key, "RANGE" = range key.
+                            KeyType = "HASH"
+                        }
+                    },
+                    new ProvisionedThroughput
+                    {
+                        ReadCapacityUnits = 1,
+                        WriteCapacityUnits = 1
+                    });
         }
 
         public async Task<List<string>> GetMembershipsAsync()

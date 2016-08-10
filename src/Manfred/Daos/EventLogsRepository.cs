@@ -109,63 +109,41 @@ namespace Manfred.Daos
 
         public void CreateTable()
         {
-            int sleepTime = 1;
-
-            while (!dynamoUtils.TableExists(TableName))
-            {
-                try
-                {
-                    var request = new CreateTableRequest
+            dynamoUtils.CreateTable(Settings.TableNamePrefix, TableName,
+                    new List<AttributeDefinition>
                     {
-                        TableName = this.TableName,
-                        AttributeDefinitions = new List<AttributeDefinition>
+                        new AttributeDefinition
                         {
-                            new AttributeDefinition
-                            {
-                                AttributeName = "GroupIdRoomIdDayOfMonth",
-                                // "S" = string, "N" = number, and so on.
-                                AttributeType = "S"
-                            },
-                            new AttributeDefinition
-                            {
-                                AttributeName = "TimestampUuid",
-                                AttributeType = "S"
-                            }
+                            AttributeName = "GroupIdRoomIdDayOfMonth",
+                            // "S" = string, "N" = number, and so on.
+                            AttributeType = "S"
                         },
-                        KeySchema = new List<KeySchemaElement>
+                        new AttributeDefinition
                         {
-                            new KeySchemaElement
-                            {
-                                AttributeName = "GroupIdRoomIdDayOfMonth",
-                                // "HASH" = hash key, "RANGE" = range key.
-                                KeyType = "HASH"
-                            },
-                            new KeySchemaElement
-                            {
-                                AttributeName = "TimestampUuid",
-                                KeyType = "RANGE"
-                            }
-                        },
-                        ProvisionedThroughput = new ProvisionedThroughput
+                            AttributeName = "TimestampUuid",
+                            AttributeType = "S"
+                        }
+                    },
+                    new List<KeySchemaElement>
+                    {
+                        new KeySchemaElement
                         {
-                            ReadCapacityUnits = 2,
-                            WriteCapacityUnits = 4
+                            AttributeName = "GroupIdRoomIdDayOfMonth",
+                            // "HASH" = hash key, "RANGE" = range key.
+                            KeyType = "HASH"
                         },
-                    };
-
-                    logger.LogInformation($"creating table {TableName}");
-                    var response = Client.CreateTableAsync(request).Result;
-
-                    logger.LogInformation("Table created with request ID: " +
-                        response.ResponseMetadata.RequestId);
-                }
-                catch (ResourceInUseException e)
-                {
-                    logger.LogInformation($"CreateTable = {this.TableName}, Error = {e.Message}");
-                }
-
-                System.Threading.Thread.Sleep(TimeSpan.FromSeconds(sleepTime++));
-            }
+                        new KeySchemaElement
+                        {
+                            AttributeName = "TimestampUuid",
+                            KeyType = "RANGE"
+                        }
+                    },
+                    new ProvisionedThroughput
+                    {
+                        ReadCapacityUnits = 2,
+                        WriteCapacityUnits = 4
+                    }
+                );
         }
 
         public async Task AddEventLog(EventLog eventLog)

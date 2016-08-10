@@ -11,7 +11,7 @@ namespace Manfred.Daos
     {
         Task<JObject> GetHipchatCapabilities(string url);
 
-        Task<TokenResponse> GetTokenAsync(Oauth oauth);
+        Task<TokenResponse> GetTokenAsync(Installation oauth);
 
         Task<IToken> Renew(string oauthId);
 

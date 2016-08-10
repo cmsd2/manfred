@@ -12,7 +12,7 @@ namespace Manfred.ViewModels
 
         public string CapabilitiesUrl {get; set;}
 
-        public OAuthView(Oauth oauth)
+        public OAuthView(Installation oauth)
         {
             OauthId = oauth.OauthId;
             GroupId = oauth.GroupId;

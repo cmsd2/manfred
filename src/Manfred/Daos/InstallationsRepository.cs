@@ -25,6 +25,7 @@ namespace Manfred.Daos
 
             public string CapabilitiesUrl {get; set;}
             public string OauthId {get; set;}
+            public string OauthSecret {get; set;}
             public string AccessToken {get; set;}
             public string ExpiresAt {get; set;}
             public List<string> Scopes {get; set;}
@@ -38,6 +39,7 @@ namespace Manfred.Daos
         public DynamoDBContext Context { get; set; }
         public Settings Settings { get; set; }
         public readonly string TableName = "Installations";
+        public readonly string InstallationsByOauthIdIndex = "InstallationsByOauthId";
 
         private DynamoUtils dynamoUtils;
 
@@ -56,63 +58,57 @@ namespace Manfred.Daos
 
         public void CreateTable()
         {
-            int sleepTime = 1;
-
-            while (!dynamoUtils.TableExists(TableName))
-            {
-                try
-                {
-                    var request = new CreateTableRequest
+            dynamoUtils.CreateTable(Settings.TableNamePrefix, TableName,
+                    new List<AttributeDefinition>
                     {
-                        TableName = this.TableName,
-                        AttributeDefinitions = new List<AttributeDefinition>
+                        new AttributeDefinition
                         {
-                            new AttributeDefinition
+                            AttributeName = "GroupId",
+                            // "S" = string, "N" = number, and so on.
+                            AttributeType = "S"
+                        },
+                        new AttributeDefinition
+                        {
+                            AttributeName = "RoomId",
+                            AttributeType = "S"
+                        }
+                    },
+                    new List<KeySchemaElement>
+                    {
+                        new KeySchemaElement
+                        {
+                            AttributeName = "GroupId",
+                            // "HASH" = hash key, "RANGE" = range key.
+                            KeyType = "HASH"
+                        },
+                        new KeySchemaElement
+                        {
+                            AttributeName = "RoomId",
+                            KeyType = "RANGE"
+                        }
+                    },
+                    new ProvisionedThroughput
+                    {
+                        ReadCapacityUnits = 1,
+                        WriteCapacityUnits = 1
+                    },
+                    new List<GlobalSecondaryIndex> {
+                        new GlobalSecondaryIndex {
+                            IndexName = InstallationsByOauthIdIndex,
+                            KeySchema = new List<KeySchemaElement> 
                             {
-                                AttributeName = "GroupId",
-                                // "S" = string, "N" = number, and so on.
-                                AttributeType = "S"
+                                new KeySchemaElement {
+                                    AttributeName = "OauthId",
+                                    KeyType = "HASH"
+                                }
                             },
-                            new AttributeDefinition
+                            ProvisionedThroughput = new ProvisionedThroughput
                             {
-                                AttributeName = "RoomId",
-                                AttributeType = "S"
+                                ReadCapacityUnits = 1,
+                                WriteCapacityUnits = 1
                             }
-                        },
-                        KeySchema = new List<KeySchemaElement>
-                        {
-                            new KeySchemaElement
-                            {
-                                AttributeName = "GroupId",
-                                // "HASH" = hash key, "RANGE" = range key.
-                                KeyType = "HASH"
-                            },
-                            new KeySchemaElement
-                            {
-                                AttributeName = "RoomId",
-                                KeyType = "RANGE"
-                            }
-                        },
-                        ProvisionedThroughput = new ProvisionedThroughput
-                        {
-                            ReadCapacityUnits = 1,
-                            WriteCapacityUnits = 1
-                        },
-                    };
-
-                    logger.LogInformation($"creating table {TableName}");
-                    var response = Client.CreateTableAsync(request).Result;
-
-                    logger.LogInformation("Table created with request ID: " +
-                        response.ResponseMetadata.RequestId);
-                }
-                catch (ResourceInUseException e)
-                {
-                    logger.LogInformation($"CreateTable = {this.TableName}, Error = {e.Message}");
-                }
-
-                System.Threading.Thread.Sleep(TimeSpan.FromSeconds(sleepTime++));
-            }
+                        }
+                    });
         }
 
         public async Task<Installation> GetInstallationAsync(string groupId, string roomId = null)
@@ -153,6 +149,54 @@ namespace Manfred.Daos
         public async Task RemoveInstallationAsync(string groupId, string roomId = null)
         {
             await Context.DeleteAsync<Tables.Installations>(groupId, roomId);
+        }
+        
+        public async Task<Installation> GetInstallationByOauthIdAsync(string oauthId)
+        {
+            QueryRequest queryRequest = new QueryRequest
+            {
+                TableName = dynamoUtils.FullTableName(Settings, TableName),
+                IndexName = InstallationsByOauthIdIndex,
+                KeyConditionExpression = "#oid = :oauthId",
+                ExpressionAttributeNames = new Dictionary<String, String> {
+                    {"#oid", "OauthId"}
+                },
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue> {
+                    {":oauthId", new AttributeValue { S =  oauthId }}
+                },
+                ScanIndexForward = true
+            };
+            
+            var result = await Client.QueryAsync(queryRequest);
+            
+            if(result.Items.Count == 0)
+            {
+                return null;
+            } 
+            
+            var row = result.Items[0];
+            
+            return new Installation {
+                OauthId = row["OauthId"].S,
+                OauthSecret = row["OauthSecret"]?.S,
+                GroupId = row["GroupId"].S,
+                RoomId = row["RoomId"].S,
+                CapabilitiesUrl = row["CapabilitiesUrl"]?.S,
+                AccessToken = row["AccessToken"]?.S,
+                ExpiresAt = row["ExpiresAt"]?.S,
+                Scopes = row["Scopes"]?.SS
+            };
+        }
+
+        public async Task RemoveInstallationByOauthAsync(string oauthId)
+        {
+            //TODO figure out how to perform a DeleteItemRequest against a Global Secondary Index.
+            
+            var installation = await GetInstallationByOauthIdAsync(oauthId);
+            
+            logger.LogInformation($"removing installation GroupId={installation.GroupId} RoomId={installation.RoomId}");
+            
+            await RemoveInstallationAsync(installation.GroupId, installation.RoomId);
         }
     }
 }

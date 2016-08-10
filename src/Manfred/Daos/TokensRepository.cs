@@ -33,16 +33,14 @@ namespace Manfred.Daos
 
         private ILogger logger;
         private IInstallationsRepository Installations {get; set;}
-        private IOAuthRepository OAuth {get; set;}
 
         private HttpClient HttpClient {get; set;}
         private Settings Settings {get; set;}
 
-        public TokensRepository(ILoggerFactory loggerFactory, IOptions<Settings> settings, IInstallationsRepository installationsRepo, IOAuthRepository oauthRepo)
+        public TokensRepository(ILoggerFactory loggerFactory, IOptions<Settings> settings, IInstallationsRepository installationsRepo)
         {
             logger = loggerFactory.CreateLogger<TokensRepository>();
             Settings = settings.Value;
-            OAuth = oauthRepo;
             Installations = installationsRepo;
             HttpClient = new HttpClient();
         }
@@ -60,7 +58,7 @@ namespace Manfred.Daos
             return JObject.Parse(json);
         }
 
-        public async Task<TokenResponse> GetTokenAsync(Oauth oauth)
+        public async Task<TokenResponse> GetTokenAsync(Installation oauth)
         {
             JObject caps = await GetHipchatCapabilities(oauth.CapabilitiesUrl);
 
@@ -91,7 +89,7 @@ namespace Manfred.Daos
         {
             logger.LogInformation($"renew OAuthId={oauthId}");
 
-            var oauth = await OAuth.GetOauthAsync(oauthId);
+            var oauth = await Installations.GetInstallationByOauthIdAsync(oauthId);
 
             if(oauth == null)
             {
@@ -109,24 +107,16 @@ namespace Manfred.Daos
             oauth.ExpiresAt = DateTimeUTils.ToIsoString(DateTime.UtcNow.AddSeconds(token.ExpiresIn));
             oauth.Scopes = Scopes;
 
-            await OAuth.CreateOauthAsync(oauth);
+            await Installations.CreateInstallationAsync(oauth);
 
-            var installation = await Installations.GetInstallationAsync(oauth.GroupId, oauth.RoomId);
-
-            installation.AccessToken = oauth.AccessToken;
-            installation.ExpiresAt = oauth.ExpiresAt;
-            installation.Scopes = oauth.Scopes;
-
-            await Installations.CreateInstallationAsync(installation);
-
-            return installation;
+            return oauth;
         }
 
         public async Task Clear(string oauthId)
         {
             logger.LogInformation($"clear OAuthId={oauthId}");
 
-            var oauth = await OAuth.GetOauthAsync(oauthId);
+            var oauth = await Installations.GetInstallationByOauthIdAsync(oauthId);
 
             if(oauth == null)
             {
@@ -137,13 +127,7 @@ namespace Manfred.Daos
             oauth.ExpiresAt = null;
             oauth.Scopes = null;
 
-            await OAuth.CreateOauthAsync(oauth);
-
-            var installation = await Installations.GetInstallationAsync(oauth.GroupId, oauth.RoomId);
-
-            installation.AccessToken = null;
-            installation.ExpiresAt = null;
-            installation.Scopes = null;
+            await Installations.CreateInstallationAsync(oauth);
         }
 
         public async Task<HipChatClient> GetHipChatClient(string groupId, string roomId = null)

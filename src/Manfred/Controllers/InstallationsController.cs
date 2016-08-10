@@ -16,16 +16,14 @@ namespace Manfred.Controllers  {
     {
         public Settings Settings {get; set;}
         public IInstallationsRepository Installations {get; set;}
-        public IOAuthRepository OAuth {get; set;}
 
         private ILogger logger;
 
-        public InstallationsController(ILoggerFactory loggerFactory, IOptions<Settings> settings, IInstallationsRepository installationsRepo, IOAuthRepository oauthRepo)
+        public InstallationsController(ILoggerFactory loggerFactory, IOptions<Settings> settings, IInstallationsRepository installationsRepo)
         {
             logger = loggerFactory.CreateLogger<InstallationsController>();
             Settings = settings.Value;
             Installations = installationsRepo;
-            OAuth = oauthRepo;
         }
 
         [HttpGet("{groupId}")]
@@ -69,14 +67,6 @@ namespace Manfred.Controllers  {
 
             await Installations.CreateInstallationAsync(new Installation {
                 OauthId = installed.OauthId,
-                GroupId = installed.GroupId,
-                RoomId = installed.RoomId,
-                CapabilitiesUrl = installed.CapabilitiesUrl
-            });
-
-            await OAuth.CreateOauthAsync(new Oauth {
-                OauthId = installed.OauthId,
-                OauthSecret = installed.OauthSecret,
                 GroupId = installed.GroupId,
                 RoomId = installed.RoomId,
                 CapabilitiesUrl = installed.CapabilitiesUrl
@@ -130,15 +120,7 @@ namespace Manfred.Controllers  {
         {
             logger.LogInformation($"uninstall OauthId={oauthId}");
 
-            var oauth = await OAuth.GetOauthAsync(oauthId);
-
-            logger.LogInformation($"removing installation GroupId={oauth.GroupId} RoomId={oauth.RoomId}");
-
-            await Installations.RemoveInstallationAsync(oauth.GroupId, oauth.RoomId);
-
-            logger.LogInformation($"removing oauth OauthId={oauthId}");
-
-            await OAuth.RemoveOauthAsync(oauthId);
+            await Installations.RemoveInstallationByOauthAsync(oauthId);
 
             return Ok();
         }
