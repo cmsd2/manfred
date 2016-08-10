@@ -102,7 +102,7 @@ namespace Manfred.Daos
 
         public async Task<List<WebHook>> GetWebHooksAsync(string groupId, string roomId = null, string webhookKey = null)
         {
-            var webhooksTable = Table.LoadTable(Client, TableName);
+            var webhooksTable = Table.LoadTable(Client, dynamoUtils.FullTableName(Settings, TableName));
 
             var webhooks = new List<WebHook>();
 

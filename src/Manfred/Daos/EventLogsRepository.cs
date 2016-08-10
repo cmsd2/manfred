@@ -170,7 +170,7 @@ namespace Manfred.Daos
 
         async Task QueryEventLogs(string groupId, string roomId, int dayOfMonth, DateTime startDate, DateTime endDate, Func<List<EventLog>,Task> receiver)
         {
-            var eventLogsTable = Table.LoadTable(Client, TableName);
+            var eventLogsTable = Table.LoadTable(Client, dynamoUtils.FullTableName(Settings, TableName));
 
             var webhooks = new List<EventLog>();
 
