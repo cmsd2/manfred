@@ -79,15 +79,15 @@ namespace Manfred.Controllers  {
         public Descriptor Descriptor()
         {
             return new Descriptor {
-                Name = Settings.Meta.Name,
-                Key = Settings.Meta.Key,
-                Description = Settings.Meta.Description,
+                Name = Settings.HipChat.Name,
+                Key = Settings.HipChat.Key,
+                Description = Settings.HipChat.Description,
                 Links = new Links {
                     Self = $"{Settings.Url}"
                 },
                 Capabilities = new Capabilities {
                     HipchatApiConsumer = new HipchatApiConsumer {
-                        FromName = Settings.Meta.Name,
+                        FromName = Settings.HipChat.Name,
                         Scopes = new List<string> {
                             "send_message",
                             "send_notification",

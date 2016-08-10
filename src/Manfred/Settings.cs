@@ -11,7 +11,7 @@ namespace Manfred
         
         public string TableNamePrefix {get; set;}
 
-        public HipChat HipChat {get; set;}
+        public HipChatMeta HipChat {get; set;}
     }
 
     public class AwsSettings
@@ -20,7 +20,7 @@ namespace Manfred
         public string SecretAccessKey {get; set;}
     }
 
-    public class HipChat
+    public class HipChatMeta
     {
         public string Name {get; set;}
         public string Key {get; set;}
