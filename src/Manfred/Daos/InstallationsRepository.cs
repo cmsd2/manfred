@@ -189,14 +189,21 @@ namespace Manfred.Daos
             
             return new Installation {
                 OauthId = row["OauthId"].S,
-                OauthSecret = row["OauthSecret"]?.S,
+                OauthSecret = Lookup(row, "OauthSecret")?.S,
                 GroupId = row["GroupId"].S,
                 RoomId = row["RoomId"].S,
-                CapabilitiesUrl = row["CapabilitiesUrl"]?.S,
-                AccessToken = row["AccessToken"]?.S,
-                ExpiresAt = row["ExpiresAt"]?.S,
-                Scopes = row["Scopes"]?.SS
+                CapabilitiesUrl = Lookup(row, "CapabilitiesUrl")?.S,
+                AccessToken = Lookup(row, "AccessToken")?.S,
+                ExpiresAt = Lookup(row, "ExpiresAt")?.S,
+                Scopes = Lookup(row, "Scopes")?.SS
             };
+        }
+
+        public AttributeValue Lookup(IDictionary<string, AttributeValue> values, string key)
+        {
+            AttributeValue attrValue = null;
+            values.TryGetValue(key, out attrValue);
+            return attrValue;
         }
 
         public async Task RemoveInstallationByOauthAsync(string oauthId)
