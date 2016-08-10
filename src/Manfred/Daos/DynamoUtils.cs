@@ -29,8 +29,9 @@ namespace Manfred.Daos
             return $"{settings.TableNamePrefix ?? ""}{tableName}";
         }
 
-        public bool TableExists(string tableName)
+        public bool TableExists(Settings settings, string unprefixedTableName)
         {
+            var tableName = FullTableName(settings, unprefixedTableName);
             var status = "";
 
             try
@@ -68,9 +69,9 @@ namespace Manfred.Daos
             return true;
         }
         
-        public void CreateTable(string tableNamePrefix, string unprefixedTableName, List<AttributeDefinition> attributes, List<KeySchemaElement> keys, ProvisionedThroughput throughput = null, List<GlobalSecondaryIndex> globalSecondaryIndexes = null)
+        public void CreateTable(Settings settings, string unprefixedTableName, List<AttributeDefinition> attributes, List<KeySchemaElement> keys, ProvisionedThroughput throughput = null, List<GlobalSecondaryIndex> globalSecondaryIndexes = null)
         {
-            string tableName = $"{tableNamePrefix ?? ""}{unprefixedTableName}";
+            string tableName = FullTableName(settings, unprefixedTableName);
             
             int sleepTime = 1;
             
@@ -82,7 +83,7 @@ namespace Manfred.Daos
           
             globalSecondaryIndexes = globalSecondaryIndexes ?? new List<GlobalSecondaryIndex>();
 
-            while (!TableExists(tableName))
+            while (!TableExists(settings, unprefixedTableName))
             {
                 try
                 {

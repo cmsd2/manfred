@@ -56,6 +56,9 @@ namespace Manfred
             var apiKey = Configuration.GetSection("Manfred").GetValue<string>("ApiKey");
             var hipChat = new HipChatClient(new ApiConnection(new Credentials(apiKey)));
 
+            var tableNamePrefix = Configuration.GetSection("Manfred").GetValue<string>("TableNamePrefix");
+            Amazon.AWSConfigsDynamoDB.Context.TableNamePrefix = tableNamePrefix;
+
             services.AddSingleton<HipChatClient>(hipChat);
             services.AddSingleton<IRoomsClient>(hipChat.Rooms);
         }

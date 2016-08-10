@@ -48,7 +48,7 @@ namespace Manfred.Daos
 
         public void CreateTable()
         {
-            dynamoUtils.CreateTable(Settings.TableNamePrefix, TableName, 
+            dynamoUtils.CreateTable(Settings, TableName, 
                     new List<AttributeDefinition>
                     {
                         new AttributeDefinition
