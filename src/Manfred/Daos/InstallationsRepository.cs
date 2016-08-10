@@ -106,6 +106,10 @@ namespace Manfred.Daos
                             {
                                 ReadCapacityUnits = 1,
                                 WriteCapacityUnits = 1
+                            },
+                            Projection = new Projection
+                            {
+                                ProjectionType = ProjectionType.ALL
                             }
                         }
                     });
