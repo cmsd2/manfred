@@ -13,5 +13,18 @@ namespace Manfred.Models
         public string AccessToken {get; set;}
         public string ExpiresAt {get; set;}
         public List<string> Scopes {get; set;}
+
+        public Installation()
+        {
+        }
+
+        public Installation(Installed installed)
+        {
+            CapabilitiesUrl = installed.CapabilitiesUrl;
+            OauthId = installed.OauthId;
+            OauthSecret = installed.OauthSecret;
+            GroupId = installed.GroupId;
+            RoomId = installed.RoomId;
+        }
     }
 }

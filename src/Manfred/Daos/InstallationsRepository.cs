@@ -133,6 +133,7 @@ namespace Manfred.Daos
                 GroupId = installation.GroupId,
                 RoomId = installation.RoomId,
                 OauthId = installation.OauthId,
+                OauthSecret = installation.OauthSecret,
                 CapabilitiesUrl = installation.CapabilitiesUrl,
                 AccessToken = installation.AccessToken,
                 ExpiresAt = installation.ExpiresAt,
@@ -147,6 +148,7 @@ namespace Manfred.Daos
                 RoomId = installation.RoomId,
                 CapabilitiesUrl = installation.CapabilitiesUrl,
                 OauthId = installation.OauthId,
+                OauthSecret = installation.OauthSecret,
                 AccessToken = installation.AccessToken,
                 ExpiresAt = installation.ExpiresAt,
                 Scopes = installation.Scopes

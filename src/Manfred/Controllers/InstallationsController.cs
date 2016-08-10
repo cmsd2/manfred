@@ -65,12 +65,7 @@ namespace Manfred.Controllers  {
         {
             logger.LogInformation($"Installed GroupId={installed.GroupId} RoomId={installed.RoomId}");
 
-            await Installations.CreateInstallationAsync(new Installation {
-                OauthId = installed.OauthId,
-                GroupId = installed.GroupId,
-                RoomId = installed.RoomId,
-                CapabilitiesUrl = installed.CapabilitiesUrl
-            });
+            await Installations.CreateInstallationAsync(new Installation(installed));
 
             return Ok();
         }
