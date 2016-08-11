@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Manfred;
 using Manfred.Models;
+using Amazon.Runtime;
 using Amazon.Kinesis;
 using Amazon.Kinesis.Model;
 using Newtonsoft.Json;
