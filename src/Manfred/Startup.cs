@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Manfred.Daos;
+using Manfred.Controllers;
 using HipChat.Net;
 using HipChat.Net.Clients;
 using HipChat.Net.Http;
@@ -46,7 +47,8 @@ namespace Manfred
             services.AddOptions();
 
             services.Configure<Settings>(Configuration.GetSection("Manfred"));
-            
+
+            services.AddSingleton<IEventHub>(sp => new EventHub(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));            
             services.AddSingleton<IEventLogsRepository>(sp => new EventLogsRepository(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));
             services.AddSingleton<IMembershipRepository>(sp => new DynamoMembershipRepository(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));
             services.AddSingleton<IWebHookRepository>(sp => new WebHooksRepository(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));

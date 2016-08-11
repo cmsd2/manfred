@@ -31,10 +31,12 @@ namespace Manfred.Controllers
         private IEventLogsRepository EventLogs {get; set;}
 
         private ITokensRepository Tokens {get; set;}
+        
+        private IEventHub EventHub {get; set;}
 
         private Settings Settings {get; set;}
         
-        public WebHooksController(ILoggerFactory loggerFactory, IWebHookRepository webHooks, IInstallationsRepository installationsRepo, IEventLogsRepository eventLogsRepo, ITokensRepository tokensRepo, IOptions<Settings> settings)
+        public WebHooksController(ILoggerFactory loggerFactory, IWebHookRepository webHooks, IInstallationsRepository installationsRepo, IEventLogsRepository eventLogsRepo, ITokensRepository tokensRepo, IOptions<Settings> settings, IEventHub eventHub)
         {
             logger = loggerFactory.CreateLogger<WebHooksController>();
             WebHooks = webHooks;
@@ -42,6 +44,7 @@ namespace Manfred.Controllers
             EventLogs = eventLogsRepo;
             Tokens = tokensRepo;
             Settings = settings.Value;
+            EventHub = eventHub;
         }
 
         public string BuildWebHookLink(WebHook webhook)
@@ -73,11 +76,15 @@ namespace Manfred.Controllers
 
             logger.LogInformation($"groupId={groupId} room={roomId} webhookKey={webhookKey} payload={json}");
 
-            await EventLogs.AddEventLog(new EventLog {
+            var e = new EventLog {
                 GroupId = groupId,
                 RoomId = roomId,
                 Content = json
-            });
+            };
+            
+            await EventLogs.AddEventLog(e);
+            
+            EventHub.PublishEvent(e).Forget();
             
             var payload = JsonConvert.DeserializeObject<WebhookPayload>(json, new WebhookPayloadConverter());
 
