@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Manfred.Daos;
+using Manfred.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
@@ -26,7 +27,28 @@ namespace Manfred.Controllers
             Settings = settings.Value;
 
             Installations = installations;
-            jwtHandler = new JwtSecurityTokenHandler();
+            jwtHandler = new HipChatJwtSecurityTokenHandler();
+        }
+
+        public string SignToken(Installation creds, ClaimsIdentity claims)
+        {
+            var plainTextSecurityKey = creds.OauthSecret;
+
+            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(plainTextSecurityKey));
+    
+            var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+
+            var securityTokenDescriptor = new SecurityTokenDescriptor()
+            {
+                Issuer = creds.OauthId,
+                Subject = claims,
+                SigningCredentials = signingCredentials
+            };
+
+            var plainToken = jwtHandler.CreateToken(securityTokenDescriptor);
+            var signedAndEncodedToken = jwtHandler.WriteToken(plainToken);
+
+            return signedAndEncodedToken;
         }
 
         public async Task<ClaimsPrincipal> Validate(string authorization)
@@ -35,7 +57,7 @@ namespace Manfred.Controllers
 
             if (string.IsNullOrEmpty(authorization))
             {
-                throw new Exception("empty or missing token");
+                throw new ArgumentException(nameof(authorization), "empty or missing token");
             }
 
             if (authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
@@ -52,9 +74,9 @@ namespace Manfred.Controllers
                 token = authorization;
             }
 
-            if(jwtHandler.CanReadToken(token))
+            if(!jwtHandler.CanReadToken(token))
             {
-                throw new Exception($"can't read token {token}");
+                throw new ArgumentException(nameof(authorization), $"can't read token {token}");
             }
 
             JwtSecurityToken jwt = jwtHandler.ReadJwtToken(token);
@@ -70,6 +92,7 @@ namespace Manfred.Controllers
             };
 
             SecurityToken validatedToken;
+            
             return jwtHandler.ValidateToken(token, validationParams, out validatedToken);
         }
     }

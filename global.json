@@ -1,6 +1,7 @@
 {
     "projects": [
         "src/HipChat.Net",
-        "src/Manfred"
+        "src/Manfred",
+        "src/Manfred.Test"
     ]
 }
