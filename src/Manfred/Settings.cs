@@ -12,6 +12,8 @@ namespace Manfred
         public string TableNamePrefix {get; set;}
 
         public HipChatMeta HipChat {get; set;}
+        
+        public string KinesisStreamName {get; set;}
     }
 
     public class AwsSettings

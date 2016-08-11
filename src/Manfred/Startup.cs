@@ -48,12 +48,13 @@ namespace Manfred
 
             services.Configure<Settings>(Configuration.GetSection("Manfred"));
 
-            services.AddSingleton<IEventHub>(sp => new EventHub(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));            
+            services.AddSingleton<IEventHub>(sp => new EventHub(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>(), sp.GetServices<IEventHandler>()));            
             services.AddSingleton<IEventLogsRepository>(sp => new EventLogsRepository(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));
             services.AddSingleton<IMembershipRepository>(sp => new DynamoMembershipRepository(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));
             services.AddSingleton<IWebHookRepository>(sp => new WebHooksRepository(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));
             services.AddSingleton<IInstallationsRepository>(sp => new InstallationsRepository(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));
             services.AddSingleton<ITokensRepository>(sp => new TokensRepository(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>(), sp.GetService<IInstallationsRepository>()));
+            services.AddSingleton<IEventHandler>(sp => new KinesisPublisher(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));
 
             var apiKey = Configuration.GetSection("Manfred").GetValue<string>("ApiKey");
             var hipChat = new HipChatClient(new ApiConnection(new Credentials(apiKey)));

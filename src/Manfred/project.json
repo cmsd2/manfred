@@ -21,6 +21,7 @@
     "Microsoft.Extensions.Logging": "1.0.0",
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
     "AWSSDK.DynamoDBv2": "3.2.5-beta",
+    "AWSSDK.Kinesis": "3.2.5-beta",
     "IdentityModel": "2.0.0-beta5"
   },
   "frameworks": {

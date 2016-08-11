@@ -16,11 +16,16 @@ namespace Manfred.Controllers
         
         private Dictionary<ISubscription, IEventHandler> handlers = new Dictionary<ISubscription, IEventHandler>();
         
-        public EventHub(ILoggerFactory loggerFactory, IOptions<Settings> settings)
+        public EventHub(ILoggerFactory loggerFactory, IOptions<Settings> settings, IEnumerable<IEventHandler> handlers)
         {
             logger = loggerFactory.CreateLogger<EventHub>();
             
             Settings = settings.Value;
+            
+            foreach(IEventHandler handler in handlers) {
+                logger.LogInformation($"adding event handler {handler}");
+                this.Subscribe(handler);
+            }
         }
         
         public Task PublishEvent(EventLog e)

@@ -44,6 +44,18 @@
           "lib/netstandard1.5/AWSSDK.DynamoDBv2.dll": {}
         }
       },
+      "AWSSDK.Kinesis/3.2.5-beta": {
+        "type": "package",
+        "dependencies": {
+          "AWSSDK.Core": "[3.2.5-beta, 3.3.0-beta)"
+        },
+        "compile": {
+          "lib/netstandard1.5/AWSSDK.Kinesis.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.5/AWSSDK.Kinesis.dll": {}
+        }
+      },
       "IdentityModel/2.0.0-beta5": {
         "type": "package",
         "dependencies": {
@@ -3516,6 +3528,29 @@
         "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid10+xamarinios10+MonoTouch10/AWSSDK.DynamoDBv2.XML",
         "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid10+xamarinios10+MonoTouch10/AWSSDK.DynamoDBv2.dll",
         "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid10+xamarinios10+MonoTouch10/AWSSDK.DynamoDBv2.pdb",
+        "tools/install.ps1",
+        "tools/uninstall.ps1"
+      ]
+    },
+    "AWSSDK.Kinesis/3.2.5-beta": {
+      "sha512": "VdM18/ItAiv/yB1dwXTCCv5zyhI4VHfF5yDcELJAiG73DthMMFuESu2edPFv8t2p9AR3PlGwDS6mGmIXSr3xdg==",
+      "type": "package",
+      "path": "AWSSDK.Kinesis/3.2.5-beta",
+      "files": [
+        "AWSSDK.Kinesis.3.2.5-beta.nupkg.sha512",
+        "AWSSDK.Kinesis.nuspec",
+        "analyzers/dotnet/cs/AWSSDK.Kinesis.CodeAnalysis.dll",
+        "lib/net35/AWSSDK.Kinesis.XML",
+        "lib/net35/AWSSDK.Kinesis.dll",
+        "lib/net35/AWSSDK.Kinesis.pdb",
+        "lib/net45/AWSSDK.Kinesis.XML",
+        "lib/net45/AWSSDK.Kinesis.dll",
+        "lib/net45/AWSSDK.Kinesis.pdb",
+        "lib/netstandard1.5/AWSSDK.Kinesis.dll",
+        "lib/netstandard1.5/AWSSDK.Kinesis.pdb",
+        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid10+xamarinios10+MonoTouch10/AWSSDK.Kinesis.XML",
+        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid10+xamarinios10+MonoTouch10/AWSSDK.Kinesis.dll",
+        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid10+xamarinios10+MonoTouch10/AWSSDK.Kinesis.pdb",
         "tools/install.ps1",
         "tools/uninstall.ps1"
       ]
@@ -9256,6 +9291,7 @@
   "projectFileDependencyGroups": {
     "": [
       "AWSSDK.DynamoDBv2 >= 3.2.5-beta",
+      "AWSSDK.Kinesis >= 3.2.5-beta",
       "HipChat.Net >= 1.0.0",
       "IdentityModel >= 2.0.0-beta5",
       "Microsoft.AspNetCore.Hosting >= 1.0.0",
