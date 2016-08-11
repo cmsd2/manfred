@@ -25,9 +25,10 @@ namespace Manfred.Controllers
             
             logger.LogInformation($"creating kinesis client for stream {Settings.KinesisStreamName}");
             
+            AWSCredentials credentials = new BasicAWSCredentials(settings.Value.Aws.AccessKeyId, settings.Value.Aws.SecretAccessKey);
             AmazonKinesisConfig config = new AmazonKinesisConfig();
             config.RegionEndpoint = Amazon.RegionEndpoint.EUWest1;
-            kinesisClient = new AmazonKinesisClient(config);
+            kinesisClient = new AmazonKinesisClient(credentials, config);
         }
         
         public async Task HandleEvent(EventLog e)
