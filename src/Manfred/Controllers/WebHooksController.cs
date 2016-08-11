@@ -37,8 +37,10 @@ namespace Manfred.Controllers
         private IEventHub EventHub {get; set;}
 
         private Settings Settings {get; set;}
+
+        private IJwtValidator JwtValidator {get; set;}
         
-        public WebHooksController(ILoggerFactory loggerFactory, IWebHookRepository webHooks, IInstallationsRepository installationsRepo, IEventLogsRepository eventLogsRepo, ITokensRepository tokensRepo, IOptions<Settings> settings, IEventHub eventHub)
+        public WebHooksController(ILoggerFactory loggerFactory, IWebHookRepository webHooks, IInstallationsRepository installationsRepo, IEventLogsRepository eventLogsRepo, ITokensRepository tokensRepo, IOptions<Settings> settings, IEventHub eventHub, IJwtValidator jwtValidator)
         {
             logger = loggerFactory.CreateLogger<WebHooksController>();
             WebHooks = webHooks;
@@ -47,6 +49,7 @@ namespace Manfred.Controllers
             Tokens = tokensRepo;
             Settings = settings.Value;
             EventHub = eventHub;
+            JwtValidator = jwtValidator;
         }
 
         public string BuildWebHookLink(WebHook webhook)
@@ -69,7 +72,9 @@ namespace Manfred.Controllers
         [HttpPost("{groupId}/room/{roomId}/webhook/{webhookKey}")]
         public async Task<IActionResult> RoomWebHookEvent([FromHeader] string authorization, string groupId, string roomId, string webhookKey)
         {
-            logger.LogInformation($"groupId={groupId} room={roomId} webhookKey={webhookKey} auth={authorization}");         
+            logger.LogInformation($"groupId={groupId} room={roomId} webhookKey={webhookKey} auth={authorization}");
+            
+            await JwtValidator.Validate(authorization);     
             
             if (Request.Body.CanSeek)
             {

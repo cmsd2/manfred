@@ -48,6 +48,7 @@ namespace Manfred
 
             services.Configure<Settings>(Configuration.GetSection("Manfred"));
 
+            services.AddSingleton<IJwtValidator>(sp => new HipChatJwtValidator(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>(), sp.GetService<IInstallationsRepository>()));
             services.AddSingleton<IEventHub>(sp => new EventHub(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>(), sp.GetServices<IEventHandler>()));            
             services.AddSingleton<IEventLogsRepository>(sp => new EventLogsRepository(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));
             services.AddSingleton<IMembershipRepository>(sp => new DynamoMembershipRepository(sp.GetService<ILoggerFactory>(), sp.GetService<IOptions<Settings>>()));
