@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net;
@@ -66,14 +67,9 @@ namespace Manfred.Controllers
         }
 
         [HttpPost("{groupId}/room/{roomId}/webhook/{webhookKey}")]
-        public async Task<IActionResult> RoomWebHookEvent(HttpContext context, string groupId, string roomId, string webhookKey)
+        public async Task<IActionResult> RoomWebHookEvent([FromHeader] string authorization, string groupId, string roomId, string webhookKey)
         {
-            if (context.Request.Headers.Keys.Contains("Authorization"))
-            {
-                var auth = context.Request.Headers["Authorization"];
-            
-                logger.LogInformation($"groupId={groupId} room={roomId} webhookKey={webhookKey} auth={auth}");
-            }
+            logger.LogInformation($"groupId={groupId} room={roomId} webhookKey={webhookKey} auth={authorization}");         
             
             if (Request.Body.CanSeek)
             {

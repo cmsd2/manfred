@@ -51,15 +51,8 @@ namespace Manfred.Controllers
         }
         
         [HttpGet("{groupId}/room/{roomId}/users")]
-        public async Task<IActionResult> GetUsers(HttpContext context, string groupId, string roomId)
-        {
-            if (context.Request.Headers.Keys.Contains("Authorization"))
-            {
-                var auth = context.Request.Headers["Authorization"];
-            
-                logger.LogInformation($"groupId={groupId} room={roomId} auth={auth}");
-            }
-            
+        public async Task<IActionResult> GetUsers(string groupId, string roomId)
+        {           
             var installation = await Installations.GetInstallationAsync(groupId, roomId);
 
             if(installation == null)
@@ -86,15 +79,8 @@ namespace Manfred.Controllers
         }
         
         [HttpPost("{groupId}/room/{roomId}/message")]
-        public async Task<IActionResult> SendMessage(HttpContext context, string groupId, string roomId, [FromBody] Message message)
-        {
-            if (context.Request.Headers.Keys.Contains("Authorization"))
-            {
-                var auth = context.Request.Headers["Authorization"];
-            
-                logger.LogInformation($"groupId={groupId} room={roomId} auth={auth}");
-            }
-            
+        public async Task<IActionResult> SendMessage(string groupId, string roomId, [FromBody] Message message)
+        {            
             var installation = await Installations.GetInstallationAsync(groupId, roomId);
 
             if(installation == null)
