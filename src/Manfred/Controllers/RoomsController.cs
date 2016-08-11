@@ -91,7 +91,7 @@ namespace Manfred.Controllers
             logger.LogInformation($"found token OauthId={installation.OauthId} ExpiresAt={installation.ExpiresAt}");
 
             var response = await Tokens.Exec(installation, async hipChatClient => {
-                return await hipChatClient.Rooms.SendMessageAsync(roomId, message.Content);
+                return await hipChatClient.Rooms.SendNotificationAsync(roomId, message.Content);
             });
                        
             logger.LogInformation($"message response = {response.Code} {response.Model}");
