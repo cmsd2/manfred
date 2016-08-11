@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using HipChat.Net.Http;
 using HipChat.Net.Clients;
 using Manfred.Models;
+using Manfred.Daos;
 
 namespace Manfred.Controllers
 {
@@ -16,11 +18,17 @@ namespace Manfred.Controllers
         
         public IRoomsClient RoomsClient {get; set;}
         
-        public RoomsController(IRoomsClient roomsClient, ILoggerFactory loggerFactory)
+        public IInstallationsRepository Installations {get; set;}
+        
+        public ITokensRepository Tokens {get; set;}
+        
+        public RoomsController(ILoggerFactory loggerFactory, IRoomsClient roomsClient, IInstallationsRepository installations, ITokensRepository tokens)
         {
             logger = loggerFactory.CreateLogger<RoomsController>();
             
             RoomsClient = roomsClient;
+            Installations = installations;
+            Tokens = tokens;
         }
         
         [HttpGet]
@@ -42,10 +50,30 @@ namespace Manfred.Controllers
             return Ok(rooms);
         }
         
-        [HttpGet("{roomId}/users")]
-        public async Task<IActionResult> GetUsers(string roomId)
+        [HttpGet("{groupId}/room/{roomId}/users")]
+        public async Task<IActionResult> GetUsers(HttpContext context, string groupId, string roomId)
         {
-            var response = await RoomsClient.GetParticipantsAsync(roomId);
+            if (context.Request.Headers.Keys.Contains("Authorization"))
+            {
+                var auth = context.Request.Headers["Authorization"];
+            
+                logger.LogInformation($"groupId={groupId} room={roomId} auth={auth}");
+            }
+            
+            var installation = await Installations.GetInstallationAsync(groupId, roomId);
+
+            if(installation == null)
+            {
+                return NotFound();
+            }
+
+            logger.LogInformation($"found token OauthId={installation.OauthId} ExpiresAt={installation.ExpiresAt}");
+
+            var response = await Tokens.Exec(installation, async hipChatClient => {
+                return await hipChatClient.Rooms.GetParticipantsAsync(roomId);
+            });
+                       
+            logger.LogInformation($"message response = {response.Code} {response.Model}");
             
             var users = new List<User>();
                 
@@ -57,11 +85,29 @@ namespace Manfred.Controllers
             return Ok(users);
         }
         
-        [HttpPost("{roomId}/message")]
-        public async Task<IActionResult> SendMessage(string roomId, [FromBody] Message message)
+        [HttpPost("{groupId}/room/{roomId}/message")]
+        public async Task<IActionResult> SendMessage(HttpContext context, string groupId, string roomId, [FromBody] Message message)
         {
-            var response = await RoomsClient.SendMessageAsync(roomId, message.Content);
+            if (context.Request.Headers.Keys.Contains("Authorization"))
+            {
+                var auth = context.Request.Headers["Authorization"];
             
+                logger.LogInformation($"groupId={groupId} room={roomId} auth={auth}");
+            }
+            
+            var installation = await Installations.GetInstallationAsync(groupId, roomId);
+
+            if(installation == null)
+            {
+                return NotFound();
+            }
+
+            logger.LogInformation($"found token OauthId={installation.OauthId} ExpiresAt={installation.ExpiresAt}");
+
+            var response = await Tokens.Exec(installation, async hipChatClient => {
+                return await hipChatClient.Rooms.SendMessageAsync(roomId, message.Content);
+            });
+                       
             logger.LogInformation($"message response = {response.Code} {response.Model}");
             
             return Ok();

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using Microsoft.AspNetCore.Mvc.Core;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -65,8 +66,15 @@ namespace Manfred.Controllers
         }
 
         [HttpPost("{groupId}/room/{roomId}/webhook/{webhookKey}")]
-        public async Task<IActionResult> RoomWebHookEvent(string groupId, string roomId, string webhookKey)
+        public async Task<IActionResult> RoomWebHookEvent(HttpContext context, string groupId, string roomId, string webhookKey)
         {
+            if (context.Request.Headers.Keys.Contains("Authorization"))
+            {
+                var auth = context.Request.Headers["Authorization"];
+            
+                logger.LogInformation($"groupId={groupId} room={roomId} webhookKey={webhookKey} auth={auth}");
+            }
+            
             if (Request.Body.CanSeek)
             {
                 Request.Body.Position = 0;
