@@ -8,6 +8,7 @@ using HipChat.Net.Http;
 using HipChat.Net.Clients;
 using Manfred.Models;
 using Manfred.Daos;
+using System.Net;
 
 namespace Manfred.Controllers
 {
@@ -91,7 +92,13 @@ namespace Manfred.Controllers
             logger.LogInformation($"found token OauthId={installation.OauthId} ExpiresAt={installation.ExpiresAt}");
 
             var response = await Tokens.Exec(installation, async hipChatClient => {
-                return await hipChatClient.Rooms.SendNotificationAsync(roomId, message.Content);
+                var r = await hipChatClient.Rooms.SendNotificationAsync(roomId, message.Content);
+                if ((int)r.Code >= (int)HttpStatusCode.BadRequest)
+                {
+                    throw new SimpleHttpResponseException(r.Code, null);
+                }
+
+                return r;
             });
                        
             logger.LogInformation($"message response = {response.Code} {response.Model}");
