@@ -152,6 +152,20 @@ namespace Manfred.Daos
             return new HipChatClient(new ApiConnection(new Credentials(token.AccessToken)));
         }
 
+        public Task<IResponse<TModel>> ExecHipChat<TModel>(IToken token, Func<HipChatClient,Task<IResponse<TModel>>> action, int attempts = 2)
+        {
+            return Exec<IResponse<TModel>>(token, async hipchatclient => {
+                var r = await action(hipchatclient);
+
+                if ((int)r.Code >= (int)HttpStatusCode.BadRequest)
+                {
+                    throw new SimpleHttpResponseException(r.Code, null);
+                }
+
+                return r;
+            });
+        }
+
         public async Task<TResult> Exec<TResult>(IToken token, Func<HipChatClient,Task<TResult>> action, int attempts = 2)
         {
             int attempt = 1;

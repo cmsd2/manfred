@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using HipChat.Net;
+using HipChat.Net.Http;
 using IdentityModel.Client;
 using Manfred.Models;
 using Newtonsoft.Json.Linq;
@@ -22,5 +23,6 @@ namespace Manfred.Daos
         Task<HipChatClient> GetHipChatClient(IToken token);
 
         Task<TResult> Exec<TResult>(IToken token, Func<HipChatClient,Task<TResult>> action, int attempts = 2);
+        Task<IResponse<TModel>> ExecHipChat<TModel>(Installation installation, Func<HipChatClient, Task<IResponse<TModel>>> p);
     }
 }

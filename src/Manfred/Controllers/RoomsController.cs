@@ -63,7 +63,7 @@ namespace Manfred.Controllers
 
             logger.LogInformation($"found token OauthId={installation.OauthId} ExpiresAt={installation.ExpiresAt}");
 
-            var response = await Tokens.Exec(installation, async hipChatClient => {
+            var response = await Tokens.ExecHipChat(installation, async hipChatClient => {
                 return await hipChatClient.Rooms.GetParticipantsAsync(roomId);
             });
                        
@@ -91,14 +91,8 @@ namespace Manfred.Controllers
 
             logger.LogInformation($"found token OauthId={installation.OauthId} ExpiresAt={installation.ExpiresAt}");
 
-            var response = await Tokens.Exec(installation, async hipChatClient => {
-                var r = await hipChatClient.Rooms.SendNotificationAsync(roomId, message.Content);
-                if ((int)r.Code >= (int)HttpStatusCode.BadRequest)
-                {
-                    throw new SimpleHttpResponseException(r.Code, null);
-                }
-
-                return r;
+            var response = await Tokens.ExecHipChat(installation, async hipChatClient => {
+                return await hipChatClient.Rooms.SendNotificationAsync(roomId, message.Content);
             });
                        
             logger.LogInformation($"message response = {response.Code} {response.Model}");

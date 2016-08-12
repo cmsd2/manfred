@@ -122,7 +122,7 @@ namespace Manfred.Controllers
 
             await WebHooks.AddWebHookAsync(m);
 
-            var created = await Tokens.Exec(installation, async hipChatClient => {
+            var created = await Tokens.ExecHipChat(installation, async hipChatClient => {
                 return await hipChatClient.Rooms.CreateRoomWebhookAsync(m.RoomId, new CreateWebhook {
                     Authentication = WebhookAuthentication.Jwt,
                     Key = m.WebHookKey,
@@ -150,9 +150,8 @@ namespace Manfred.Controllers
         {
             var installation = await Installations.GetInstallationAsync(groupId, roomId);
 
-            await Tokens.Exec<object>(installation, async hipChatClient => {
-                await hipChatClient.Rooms.DeleteRoomWebhookAsync(roomId, webhookKey);
-                return null;
+            await Tokens.ExecHipChat(installation, async hipChatClient => {
+                return await hipChatClient.Rooms.DeleteRoomWebhookAsync(roomId, webhookKey);
             });
             
             await WebHooks.RemoveWebHookAsync(groupId, roomId, webhookKey);
@@ -169,7 +168,7 @@ namespace Manfred.Controllers
 
             foreach(WebHook hook in hooks)
             {
-                var resp = await Tokens.Exec(installation, async hipChatClient => {
+                var resp = await Tokens.ExecHipChat(installation, async hipChatClient => {
                     return await hipChatClient.Rooms.GetRoomWebhookAsync(hook.RoomId, hook.WebHookKey);
                 });
 
