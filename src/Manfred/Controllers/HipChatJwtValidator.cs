@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
@@ -93,7 +94,11 @@ namespace Manfred.Controllers
 
             SecurityToken validatedToken;
             
-            return jwtHandler.ValidateToken(token, validationParams, out validatedToken);
+            var principal = jwtHandler.ValidateToken(token, validationParams, out validatedToken);
+            
+            logger.LogInformation("claims: " + string.Join(" ", principal.Claims.Select(claim => $"{claim.Type}={claim.Value}")));
+            
+            return principal;
         }
     }
 }
