@@ -23,6 +23,6 @@ namespace Manfred.Daos
         Task<HipChatClient> GetHipChatClient(IToken token);
 
         Task<TResult> Exec<TResult>(IToken token, Func<HipChatClient,Task<TResult>> action, int attempts = 2);
-        Task<IResponse<TModel>> ExecHipChat<TModel>(Installation installation, Func<HipChatClient, Task<IResponse<TModel>>> p);
+        Task<IResponse<TModel>> ExecHipChat<TModel>(IToken token, Func<HipChatClient,Task<IResponse<TModel>>> action, int attempts = 2);
     }
 }
